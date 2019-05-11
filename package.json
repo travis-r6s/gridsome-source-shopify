@@ -1,0 +1,7 @@
+{
+  "name": "gridsome-source-shopify",
+  "version": "0.0.0",
+  "main": "index.js",
+  "author": "Travis Reynolds <travis@cirruscreative.co.uk>",
+  "license": "MIT"
+}
