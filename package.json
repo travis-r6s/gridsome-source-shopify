@@ -7,5 +7,8 @@
     "email": "travis@travisreynolds.dev",
     "name": "Travis Reynolds"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "graphql-request": "^1.8.2"
+  }
 }
