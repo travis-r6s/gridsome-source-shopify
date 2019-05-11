@@ -84,7 +84,7 @@ const COLLECTIONS_QUERY = `
           image {
             altText
             id
-            src
+            originalSrc
           }
           products(first: 250) {
             edges {
