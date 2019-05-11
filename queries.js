@@ -111,6 +111,13 @@ const PRODUCTS_QUERY = `
         cursor
         node {
           createdAt
+          collections (first: $first) {
+            edges {
+              node {
+                id
+              }
+            }
+          }
           description
           descriptionHtml
           handle
