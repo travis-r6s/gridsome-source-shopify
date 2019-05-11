@@ -1,51 +1,49 @@
 const ARTICLES_QUERY = `
   query GetArticles($first: Int!, $after: String) {
-    shop {
-      articles(first: $first, after: $after) {
-        pageInfo {
-          hasNextPage
-        }
-        edges {
-          cursor
-          node {
-            author {
-              bio
-              email
-              firstName
-              lastName
-              name
-            }
-            blog {
-              id
-            }
-            comments(first: 250) {
-              edges {
-                node {
-                  author {
-                    email
-                    name
-                  }
-                  content
-                  contentHtml
-                  id
+    articles(first: $first, after: $after) {
+      pageInfo {
+        hasNextPage
+      }
+      edges {
+        cursor
+        node {
+          author {
+            bio
+            email
+            firstName
+            lastName
+            name
+          }
+          blog {
+            id
+          }
+          comments(first: 250) {
+            edges {
+              node {
+                author {
+                  email
+                  name
                 }
+                content
+                contentHtml
+                id
               }
             }
-            content
-            contentHtml
-            excerpt
-            excerptHtml
-            id
-            image {
-              altText
-              id
-              src
-            }
-            publishedAt
-            tags
-            title
-            url
           }
+          content
+          contentHtml
+          excerpt
+          excerptHtml
+          id
+          image {
+            altText
+            id
+            src
+          }
+          publishedAt
+          tags
+          title
+          url
         }
       }
     }
@@ -54,18 +52,16 @@ const ARTICLES_QUERY = `
 
 const BLOGS_QUERY = `
   query GetBlogs($first: Int!, $after: String) {
-    shop {
-      blogs(first: $first, after: $after) {
-        pageInfo {
-          hasNextPage
-        }
-        edges {
-          cursor
-          node {
-            id
-            title
-            url
-          }
+    blogs(first: $first, after: $after) {
+      pageInfo {
+        hasNextPage
+      }
+      edges {
+        cursor
+        node {
+          id
+          title
+          url
         }
       }
     }
@@ -74,33 +70,31 @@ const BLOGS_QUERY = `
 
 const COLLECTIONS_QUERY = `
   query GetCollections($first: Int!, $after: String) {
-    shop {
-      collections(first: $first, after: $after) {
-        pageInfo {
-          hasNextPage
-        }
-        edges {
-          cursor
-          node {
-            description
-            descriptionHtml
-            handle
+    collections(first: $first, after: $after) {
+      pageInfo {
+        hasNextPage
+      }
+      edges {
+        cursor
+        node {
+          description
+          descriptionHtml
+          handle
+          id
+          image {
+            altText
             id
-            image {
-              altText
-              id
-              src
-            }
-            products(first: 250) {
-              edges {
-                node {
-                  id
-                }
+            src
+          }
+          products(first: 250) {
+            edges {
+              node {
+                id
               }
             }
-            title
-            updatedAt
           }
+          title
+          updatedAt
         }
       }
     }
@@ -109,74 +103,72 @@ const COLLECTIONS_QUERY = `
 
 const PRODUCTS_QUERY = `
   query GetProducts($first: Int!, $after: String) {
-    shop {
-      products(first: $first, after: $after) {
-        pageInfo {
-          hasNextPage
-        }
-        edges {
-          cursor
-          node {
-            createdAt
-            description
-            descriptionHtml
-            handle
+    products(first: $first, after: $after) {
+      pageInfo {
+        hasNextPage
+      }
+      edges {
+        cursor
+        node {
+          createdAt
+          description
+          descriptionHtml
+          handle
+          id
+          images(first: 250) {
+            edges {
+              node {
+                id
+                altText
+                originalSrc
+              }
+            }
+          }
+          onlineStoreUrl
+          options {
             id
-            images(first: 250) {
-              edges {
-                node {
-                  id
+            name
+            values
+          }
+          priceRange {
+            minVariantPrice {
+              amount
+              currencyCode
+            }
+            maxVariantPrice {
+              amount
+              currencyCode
+            }
+          }
+          productType
+          publishedAt
+          tags
+          title
+          updatedAt
+          variants(first: 250) {
+            edges {
+              node {
+                availableForSale
+                compareAtPrice
+                id
+                image {
                   altText
+                  id
                   originalSrc
                 }
-              }
-            }
-            onlineStoreUrl
-            options {
-              id
-              name
-              values
-            }
-            priceRange {
-              minVariantPrice {
-                amount
-                currencyCode
-              }
-              maxVariantPrice {
-                amount
-                currencyCode
-              }
-            }
-            productType
-            publishedAt
-            tags
-            title
-            updatedAt
-            variants(first: 250) {
-              edges {
-                node {
-                  availableForSale
-                  compareAtPrice
-                  id
-                  image {
-                    altText
-                    id
-                    originalSrc
-                  }
-                  price
-                  selectedOptions {
-                    name
-                    value
-                  }
-                  sku
-                  title
-                  weight
-                  weightUnit
+                price
+                selectedOptions {
+                  name
+                  value
                 }
+                sku
+                title
+                weight
+                weightUnit
               }
             }
-            vendor
           }
+          vendor
         }
       }
     }
@@ -210,11 +202,9 @@ const SHOP_POLICIES_QUERY = `
 
 const PRODUCT_TYPES_QUERY = `
   query GetProductTypes($first: Int!) {
-    shop {
-      productTypes(first: $first) {
-        edges {
-          node
-        }
+    productTypes(first: $first) {
+      edges {
+        node
       }
     }
   }
