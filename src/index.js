@@ -59,7 +59,7 @@ class ShopifySource {
   }
 
   async getCollections (store) {
-    const { getContentType, createReference } = store
+    const { createReference } = store
 
     const PRODUCT_TYPE_NAME = this.createTypeName(PRODUCT)
     const COLLECTION_TYPE_NAME = this.createTypeName(COLLECTION)
@@ -77,7 +77,7 @@ class ShopifySource {
   }
 
   async getProducts (store) {
-    const { getContentType, createReference } = store
+    const { createReference } = store
 
     const PRODUCT_TYPE_NAME = this.createTypeName(PRODUCT)
     const COLLECTION_TYPE_NAME = this.createTypeName(COLLECTION)
