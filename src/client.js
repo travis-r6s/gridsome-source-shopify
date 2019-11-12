@@ -1,11 +1,10 @@
-const { GraphQLClient } = require('graphql-request')
-const prettyjson = require('prettyjson')
-const { get, last } = require('lodash/fp')
+import { GraphQLClient } from 'graphql-request'
+import prettyjson from 'prettyjson'
 
 /**
  * Create a Shopify Storefront GraphQL client for the provided name and token.
  */
-const createClient = ({ storeUrl, storefrontToken }) => new GraphQLClient(`https://${storeUrl}.myshopify.com/api/graphql`, {
+export const createClient = ({ storeUrl, storefrontToken }) => new GraphQLClient(`${storeUrl}/api/2019-07/graphql.json`, {
   headers: {
     'X-Shopify-Storefront-Access-Token': storefrontToken
   }
@@ -14,7 +13,7 @@ const createClient = ({ storeUrl, storefrontToken }) => new GraphQLClient(`https
 /**
  * Print an error from a GraphQL client
  */
-const printGraphQLError = e => {
+export const printGraphQLError = e => {
   const prettyjsonOptions = { keysColor: 'red', dashColor: 'red' }
 
   if (e.response && e.response.errors)
@@ -26,45 +25,35 @@ const printGraphQLError = e => {
 /**
  * Request a query from a client.
  */
-const queryOnce = async (client, query, first = 250, after) => await client.request(query, { first, after })
+export const queryOnce = async (client, query, first = 100, after) => await client.request(query, { first, after })
 
 /**
  * Get all paginated data from a query. Will execute multiple requests as
  * needed.
  */
-const queryAll = async (
+export const queryAll = async (
   client,
-  path,
   query,
-  first = 250,
+  first,
   after,
   aggregatedResponse,
 ) => {
-  const data = await queryOnce(client, query, first, after)
-
-  const edges = get([...path, 'edges'], data)
-  const nodes = edges.map(edge => edge.node)
+  const { data: { edges, pageInfo } } = await queryOnce(client, query, first, after)
+  const lastNode = edges[edges.length - 1]
+  const nodes = edges.map( edge => edge.node )
 
   aggregatedResponse
     ? (aggregatedResponse = aggregatedResponse.concat(nodes))
     : (aggregatedResponse = nodes)
 
-  if (get([...path, 'pageInfo', 'hasNextPage'], false, data))
+  if (pageInfo.hasNextPage)
     return queryAll(
       client,
-      path,
       query,
       first,
-      last(edges).cursor,
+      lastNode.cursor,
       aggregatedResponse,
     )
 
   return aggregatedResponse
-}
-
-module.exports = {
-  createClient,
-  printGraphQLError,
-  queryOnce,
-  queryAll
 }
