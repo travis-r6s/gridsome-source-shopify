@@ -9,7 +9,7 @@
   },
   "license": "MIT",
   "scripts": {
-    "watch": "babel src --watch -d ,",
+    "watch": "babel src --watch -d .",
     "build": "babel src -d ."
   },
   "dependencies": {
