@@ -2,15 +2,15 @@
   "name": "gridsome-source-shopify",
   "description": "Shopify source plugin for Gridsome",
   "version": "0.0.0",
-  "main": "index.js",
+  "main": "lib/index.js",
   "author": {
     "email": "travis@travisreynolds.dev",
     "name": "Travis Reynolds"
   },
   "license": "MIT",
   "scripts": {
-    "watch": "babel --watch src .",
-    "build": "babel src ."
+    "watch": "babel src --watch -d ,",
+    "build": "babel src -d ."
   },
   "dependencies": {
     "camelcase": "^5.3.1",
