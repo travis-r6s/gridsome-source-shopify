@@ -64,62 +64,36 @@ class ShopifySource {
 
     const PRODUCT_TYPE_NAME = this.createTypeName(PRODUCT)
     const COLLECTION_TYPE_NAME = this.createTypeName(COLLECTION)
-    const collections = store.addCollection({
-      typeName: this.createTypeName(COLLECTION)
-    })
+    const collectionStore = store.addCollection({ typeName: COLLECTION_TYPE_NAME })
 
-    const data = await queryAll(this.shopify, COLLECTIONS_QUERY, this.options.first)
+    const allCollections = await queryAll(this.shopify, COLLECTIONS_QUERY, this.options.first)
 
-    data.forEach(collection => {
+    for (const collection of allCollections) {
       const products = collection.products.edges.map(({ node: product }) => createReference(PRODUCT_TYPE_NAME, product.id))
-      collections.addNode({
-        id: collection.id,
-        description: collection.description,
-        descriptionHtml: collection.descriptionHtml,
-        handle: collection.handle,
-        slug: collection.handle,
-        image: collection.image,
-        title: collection.title,
-        updatedAt: collection.updatedAt,
+      collectionStore.addNode({
+        ...collection,
         products
       })
-    })
+    }
   }
 
   async getProducts (store) {
     const { getContentType, createReference } = store
 
+    const PRODUCT_TYPE_NAME = this.createTypeName(PRODUCT)
     const COLLECTION_TYPE_NAME = this.createTypeName(COLLECTION)
+    const productStore = store.addCollection({ typeName: PRODUCT_TYPE_NAME })
 
-    const { products: { edges: data } } = await this.shopify.request(PRODUCTS_QUERY, { first: this.options.perPage })
+    const allProducts = await queryAll(this.shopify, PRODUCTS_QUERY, this.options.first)
 
-    const products = store.addCollection({
-      typeName: this.createTypeName(PRODUCT)
-    })
-
-    data.forEach(({ node: product }) => {
+    for (const product of allProducts) {
       const collections = product.collections.edges.map(({ node: collection }) => createReference(COLLECTION_TYPE_NAME, collection.id))
-      products.addNode({
-        id: product.id,
-        createdAt: product.createdAt,
+      productStore.addNode({
+        ...product,
         collections: collections,
-        description: product.description,
-        descriptionHtml: product.descriptionHtml,
-        slug: product.handle,
-        handle: product.handle,
-        images: product.images.edges.map(({ node: image }) => image),
-        onlineStoreUrl: product.onlineStoreUrl,
-        options: product.options,
-        priceRange: product.priceRange,
-        product: product.productType,
-        productType: product.productType,
-        published: product.publishedAt,
-        tags: product.tags,
-        title: product.title,
-        updatedAt: product.updatedAt,
-        vendor: product.vendor
+        images: product.images.edges.map(({ node: image }) => image)
       })
-    })
+    }
   }
 
   createTypeName (name = '') {
