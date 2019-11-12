@@ -1,6 +1,6 @@
 import camelCase from 'camelcase'
 import { createClient, queryAll } from './client'
-import { COLLECTIONS_QUERY, PRODUCTS_QUERY, PRODUCT_TYPES_QUERY, ARTICLES_QUERY, BLOGS_QUERY, SHOP_POLICIES_QUERY } from './queries'
+import { COLLECTIONS_QUERY, PRODUCTS_QUERY, PRODUCT_TYPES_QUERY, ARTICLES_QUERY, BLOGS_QUERY, PAGES_QUERY } from './queries'
 
 // Node prefix
 const TYPE_PREFIX = 'Shopify'
@@ -10,7 +10,7 @@ const ARTICLE = 'Article'
 const BLOG = 'Blog'
 const COLLECTION = 'Collection'
 const PRODUCT = 'Product'
-const SHOP_POLICY = 'ShopPolicy'
+const PAGE = 'Page'
 const PRODUCT_TYPE = 'ProductType'
 
 class ShopifySource {
@@ -42,6 +42,7 @@ class ShopifySource {
       await this.getProducts(actions)
       await this.getBlogs(actions)
       await this.getArticles(actions)
+      await this.getPages(actions)
     })
   }
 
@@ -121,6 +122,17 @@ class ShopifySource {
         ...article,
         blog
       })
+    }
+  }
+
+  async getPages (actions) {
+    const PAGE_TYPENAME = this.createTypeName(PAGE)
+    const pageStore = actions.addCollection({ typeName: PAGE_TYPENAME })
+
+    const allPages = await queryAll(this.shopify, PAGES_QUERY, this.options.first)
+
+    for (const page of allPages) {
+      pageStore.addNode(page)
     }
   }
 

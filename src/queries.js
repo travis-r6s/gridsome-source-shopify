@@ -219,3 +219,23 @@ export const PRODUCT_TYPES_QUERY = `
     }
   }
 `
+
+export const PAGES_QUERY = `
+  query Pages ($first: Int!) {
+    data: pages (first: $first) {
+      pageInfo {
+        hasNextPage
+      }
+      edges {
+        cursor
+        node {
+          id
+          title
+          handle
+          body
+          bodySummary
+        }
+      }
+    }
+  }
+`
