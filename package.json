@@ -1,8 +1,8 @@
 {
   "name": "gridsome-source-shopify",
   "description": "Shopify source plugin for Gridsome",
-  "version": "0.0.0",
-  "main": "lib/index.js",
+  "version": "0.1.0",
+  "main": "index.js",
   "author": {
     "email": "travis@travisreynolds.dev",
     "name": "Travis Reynolds"
@@ -24,12 +24,12 @@
     "@babel/preset-env": "^7.7.1",
     "@babel/runtime": "^7.7.2",
     "babel-eslint": "^10.0.3",
-    "eslint": "^6.2.2",
-    "eslint-config-standard": "^14.0.1",
+    "eslint": "^6.6.0",
+    "eslint-config-standard": "^14.1.0",
     "eslint-config-travisreynolds-node": "1.1.2",
     "eslint-plugin-html": "^6.0.0",
     "eslint-plugin-import": "^2.18.2",
-    "eslint-plugin-node": "^9.1.0",
+    "eslint-plugin-node": "^10.0.0",
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.1"
   }
