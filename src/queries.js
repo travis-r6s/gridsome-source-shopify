@@ -210,6 +210,9 @@ export const SHOP_POLICIES_QUERY = `
 export const PRODUCT_TYPES_QUERY = `
   query GetProductTypes($first: Int!) {
     data: productTypes(first: $first) {
+      pageInfo {
+        hasNextPage
+      }
       edges {
         node
       }

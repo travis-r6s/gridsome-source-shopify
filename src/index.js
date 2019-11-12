@@ -42,22 +42,22 @@ class ShopifySource {
 
       console.log(`Loading data from ${options.storeUrl}`)
 
-      // await this.getProductTypes(store)
+      await this.getProductTypes(store)
       await this.getCollections(store)
       await this.getProducts(store)
     })
   }
 
-  // async getProductTypes (store) {
-  //   const { productTypes: { edges: data } } = await this.shopify.request(PRODUCT_TYPES_QUERY, { first: this.options.perPage })
+  async getProductTypes (store) {
+    const PRODUCT_TYPE_TYPE_NAME = this.createTypeName(PRODUCT_TYPE)
+    const productTypeStore = store.addCollection({ typeName: PRODUCT_TYPE_TYPE_NAME })
 
-  //   data.forEach(({ node: type }) => {
-  //     store.addCollection({
-  //       typeName: this.createTypeName(PRODUCT_TYPE),
-  //       route: `types/:slug`
-  //     })
-  //   })
-  // }
+    const allProductTypes = await queryAll(this.shopify, PRODUCT_TYPES_QUERY, this.options.first)
+
+    for (const productType of allProductTypes) {
+      if (productType) productTypeStore.addNode({ title: productType })
+    }
+  }
 
   async getCollections (store) {
     const { getContentType, createReference } = store
