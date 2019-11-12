@@ -1,5 +1,5 @@
 import camelCase from 'camelcase'
-import { createClient } from './client'
+import { createClient, queryAll } from './client'
 import { COLLECTIONS_QUERY, PRODUCTS_QUERY, PRODUCT_TYPES_QUERY } from './queries'
 
 // Node prefix
@@ -16,11 +16,6 @@ const PRODUCT_VARIANT = 'ProductVariant'
 const SHOP_POLICY = 'ShopPolicy'
 const PRODUCT_TYPE = 'ProductType'
 
-const allTypes = new Map( [
-  [PRODUCT, PRODUCTS_QUERY],
-  [COLLECTION, COLLECTIONS_QUERY]
-] )
-
 class ShopifySource {
   static defaultOptions () {
     return {
@@ -32,7 +27,8 @@ class ShopifySource {
       perPage: 100
     }
   }
-  constructor(api, options) {
+
+  constructor (api, options) {
     this.options = options
 
     if (!options.storeUrl && !options.storeName) throw new Error('Missing store name or url.')
@@ -52,18 +48,6 @@ class ShopifySource {
     })
   }
 
-  async getType ( type, store ) {
-    const { getContentType, createReference } = store
-
-    const typeQuery = allTypes.get(type)
-    const TYPE_NAME = this.createTypeName( type )
-
-
-    const { data: { edges: data } } = await this.shopify.request( typeQuery, { first: this.options.perPage } )
-
-
-  }
-
   // async getProductTypes (store) {
   //   const { productTypes: { edges: data } } = await this.shopify.request(PRODUCT_TYPES_QUERY, { first: this.options.perPage })
 
@@ -79,14 +63,14 @@ class ShopifySource {
     const { getContentType, createReference } = store
 
     const PRODUCT_TYPE_NAME = this.createTypeName(PRODUCT)
-
-    const { collections: { edges: data } } = await this.shopify.request(COLLECTIONS_QUERY, { first: this.options.perPage })
-
+    const COLLECTION_TYPE_NAME = this.createTypeName(COLLECTION)
     const collections = store.addCollection({
       typeName: this.createTypeName(COLLECTION)
     })
 
-    data.forEach(({ node: collection }) => {
+    const data = await queryAll(this.shopify, COLLECTIONS_QUERY, this.options.first)
+
+    data.forEach(collection => {
       const products = collection.products.edges.map(({ node: product }) => createReference(PRODUCT_TYPE_NAME, product.id))
       collections.addNode({
         id: collection.id,
@@ -101,7 +85,6 @@ class ShopifySource {
       })
     })
   }
-
 
   async getProducts (store) {
     const { getContentType, createReference } = store
@@ -143,6 +126,5 @@ class ShopifySource {
     return camelCase(`${this.options.typeName} ${name}`, { pascalCase: true })
   }
 }
-
 
 module.exports = ShopifySource
