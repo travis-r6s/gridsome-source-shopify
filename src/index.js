@@ -1,6 +1,6 @@
-const camelCase = require('camelcase')
-const { createClient } = require('./client')
-const { COLLECTIONS_QUERY, PRODUCTS_QUERY, PRODUCT_TYPES_QUERY } = require('./queries')
+import camelCase from 'camelcase'
+import { createClient } from './client'
+import { COLLECTIONS_QUERY, PRODUCTS_QUERY, PRODUCT_TYPES_QUERY } from './queries'
 
 // Node prefix
 const TYPE_PREFIX = 'Shopify'
@@ -16,30 +16,30 @@ const PRODUCT_VARIANT = 'ProductVariant'
 const SHOP_POLICY = 'ShopPolicy'
 const PRODUCT_TYPE = 'ProductType'
 
+const allTypes = new Map( [
+  [PRODUCT, PRODUCTS_QUERY],
+  [COLLECTION, COLLECTIONS_QUERY]
+] )
+
 class ShopifySource {
   static defaultOptions () {
     return {
+      storeName: '',
       storeUrl: '',
       storefrontToken: '',
       typeName: TYPE_PREFIX,
-      types: [
-        'Product'
-      ],
+      types: [PRODUCT, COLLECTION, PRODUCT_TYPE],
       perPage: 100
     }
   }
   constructor(api, options) {
     this.options = options
 
-    if (!options.storeUrl) throw new Error('Missing store url.')
+    if (!options.storeUrl && !options.storeName) throw new Error('Missing store name or url.')
     if (!options.storefrontToken) throw new Error('Missing storefront access token.')
+    if (options.storeName) this.options.storeUrl = `https://${options.storeName}.myshopify.com`
 
     this.shopify = createClient(options)
-
-    this.routes = {
-      products: '/products/:slug',
-      collections: '/collections/:slug'
-    }
 
     api.loadSource(async store => {
       this.store = store
@@ -52,11 +52,23 @@ class ShopifySource {
     })
   }
 
+  async getType ( type, store ) {
+    const { getContentType, createReference } = store
+
+    const typeQuery = allTypes.get(type)
+    const TYPE_NAME = this.createTypeName( type )
+
+
+    const { data: { edges: data } } = await this.shopify.request( typeQuery, { first: this.options.perPage } )
+
+
+  }
+
   // async getProductTypes (store) {
   //   const { productTypes: { edges: data } } = await this.shopify.request(PRODUCT_TYPES_QUERY, { first: this.options.perPage })
 
   //   data.forEach(({ node: type }) => {
-  //     store.addContentType({
+  //     store.addCollection({
   //       typeName: this.createTypeName(PRODUCT_TYPE),
   //       route: `types/:slug`
   //     })
@@ -70,9 +82,8 @@ class ShopifySource {
 
     const { collections: { edges: data } } = await this.shopify.request(COLLECTIONS_QUERY, { first: this.options.perPage })
 
-    const collections = store.addContentType({
-      typeName: this.createTypeName(COLLECTION),
-      route: this.routes.collections
+    const collections = store.addCollection({
+      typeName: this.createTypeName(COLLECTION)
     })
 
     data.forEach(({ node: collection }) => {
@@ -99,9 +110,8 @@ class ShopifySource {
 
     const { products: { edges: data } } = await this.shopify.request(PRODUCTS_QUERY, { first: this.options.perPage })
 
-    const products = store.addContentType({
-      typeName: this.createTypeName(PRODUCT),
-      route: this.routes.products
+    const products = store.addCollection({
+      typeName: this.createTypeName(PRODUCT)
     })
 
     data.forEach(({ node: product }) => {
