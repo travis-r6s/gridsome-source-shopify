@@ -96,9 +96,7 @@ class ShopifySource {
 
   async getBlogs (actions) {
     const BLOG_TYPENAME = this.createTypeName(BLOG)
-    const ARTICLE_TYPENAME = this.createTypeName(ARTICLE)
     const blogStore = actions.addCollection({ typeName: BLOG_TYPENAME })
-    blogStore.addReference('articles', ARTICLE_TYPENAME)
 
     const allBlogs = await queryAll(this.shopify, BLOGS_QUERY, this.options.first)
 
