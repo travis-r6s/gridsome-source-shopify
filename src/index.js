@@ -112,7 +112,7 @@ class ShopifySource {
     const PRODUCT_TYPE_TYPENAME = this.createTypeName(PRODUCT_TYPE)
     const productTypeStore = actions.addCollection({ typeName: PRODUCT_TYPE_TYPENAME })
 
-    const allProductTypes = await queryAll(this.shopify, PRODUCT_TYPES_QUERY, this.options.first)
+    const allProductTypes = await queryAll(this.shopify, PRODUCT_TYPES_QUERY, this.options.perPage)
 
     for (const productType of allProductTypes) {
       if (productType) productTypeStore.addNode({ title: productType })
@@ -128,7 +128,7 @@ class ShopifySource {
     const collectionStore = actions.addCollection({ typeName: COLLECTION_TYPENAME })
     const imageStore = actions.getCollection(IMAGE_TYPENAME)
 
-    const allCollections = await queryAll(this.shopify, COLLECTIONS_QUERY, this.options.first)
+    const allCollections = await queryAll(this.shopify, COLLECTIONS_QUERY, this.options.perPage)
 
     for (const collection of allCollections) {
       const products = collection.products.edges.map(({ node: product }) => createReference(PRODUCT_TYPENAME, product.id))
@@ -153,7 +153,7 @@ class ShopifySource {
     const productStore = actions.addCollection({ typeName: PRODUCT_TYPENAME })
     const imageStore = actions.getCollection(IMAGE_TYPENAME)
 
-    const allProducts = await queryAll(this.shopify, PRODUCTS_QUERY, this.options.first)
+    const allProducts = await queryAll(this.shopify, PRODUCTS_QUERY, this.options.perPage)
 
     for (const product of allProducts) {
       const collections = product.collections.edges.map(({ node: collection }) => createReference(COLLECTION_TYPENAME, collection.id))
@@ -178,7 +178,7 @@ class ShopifySource {
     const BLOG_TYPENAME = this.createTypeName(BLOG)
     const blogStore = actions.addCollection({ typeName: BLOG_TYPENAME })
 
-    const allBlogs = await queryAll(this.shopify, BLOGS_QUERY, this.options.first)
+    const allBlogs = await queryAll(this.shopify, BLOGS_QUERY, this.options.perPage)
 
     for (const blog of allBlogs) {
       blogStore.addNode(blog)
@@ -192,7 +192,7 @@ class ShopifySource {
     const BLOG_TYPENAME = this.createTypeName(BLOG)
     const articleStore = actions.addCollection({ typeName: ARTICLE_TYPENAME })
 
-    const allArticles = await queryAll(this.shopify, ARTICLES_QUERY, this.options.first)
+    const allArticles = await queryAll(this.shopify, ARTICLES_QUERY, this.options.perPage)
 
     for (const article of allArticles) {
       const blog = createReference(BLOG_TYPENAME, article.blog.id)
@@ -207,7 +207,7 @@ class ShopifySource {
     const PAGE_TYPENAME = this.createTypeName(PAGE)
     const pageStore = actions.addCollection({ typeName: PAGE_TYPENAME })
 
-    const allPages = await queryAll(this.shopify, PAGES_QUERY, this.options.first)
+    const allPages = await queryAll(this.shopify, PAGES_QUERY, this.options.perPage)
 
     for (const page of allPages) {
       pageStore.addNode(page)
