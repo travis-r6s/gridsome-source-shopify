@@ -2,7 +2,7 @@
 
 > Shopify source plugin for Gridsome
 
-This plugin also support the Storefront API's `transformedSrc` image method. You can create different image size and scales with this, for example creating a thumbnail image.
+This plugin also support the Storefront API's `transformedSrc` image field. You can create different image size and scales with this, for example creating a thumbnail image.
 
 ## Usage
 
