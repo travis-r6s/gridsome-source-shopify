@@ -2,6 +2,8 @@
 
 > Shopify source plugin for Gridsome
 
+This plugin also support the Storefront API's `transformedSrc` image method. You can create different image size and scales with this, for example creating a thumbnail image.
+
 ## Usage
 
 ```js
@@ -34,9 +36,11 @@ module.exports = {
       node {
         id
         title
+        handle
         descriptionHtml
         image {
           originalSrc
+          thumbnail: transformedSrc(maxWidth: 100, maxHeight: 100, crop: CENTER)
         }
         collections {
           title
@@ -44,6 +48,38 @@ module.exports = {
         }
         tags
         productType
+      }
+    }
+  }
+}
+```
+
+### Product's Variants
+
+### Products
+
+```graphql
+{
+  allShopifyProduct {
+    edges {
+      node {
+        id
+        variants {
+          title
+          image {
+            id
+            altText
+            originalSrc
+          }
+          price {
+            amount
+            currencyCode
+          }
+          selectedOptions {
+            name
+            value
+          }
+        }
       }
     }
   }
@@ -61,6 +97,11 @@ module.exports = {
         title
         slug
         descriptionHtml
+        image {
+          id
+          altText
+          banner: transformedSrc(maxHeight: 400, crop: BOTTOM, scale: 2)
+        }
         products {
           id
           title
