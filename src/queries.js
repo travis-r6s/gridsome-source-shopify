@@ -130,14 +130,20 @@ export const PRODUCTS_QUERY = `
             edges {
               node {
                 availableForSale
-                compareAtPrice: compareAtPriceV2
+                compareAtPrice: compareAtPriceV2 {
+                  amount
+                  currencyCode
+                }
                 id
                 image {
                   altText
                   id
                   originalSrc
                 }
-                price: priceV2
+                price: priceV2 {
+                  amount
+                  currencyCode
+                }
                 selectedOptions {
                   name
                   value
