@@ -12,6 +12,7 @@ const COLLECTION = 'Collection'
 const PRODUCT = 'Product'
 const PAGE = 'Page'
 const PRODUCT_TYPE = 'ProductType'
+const IMAGE = 'Image'
 
 class ShopifySource {
   static defaultOptions () {
@@ -37,6 +38,7 @@ class ShopifySource {
     api.loadSource(async actions => {
       console.log(`Loading data from ${options.storeUrl}`)
 
+      await this.setupImages(actions)
       await this.getProductTypes(actions)
       await this.getCollections(actions)
       await this.getProducts(actions)
@@ -44,6 +46,11 @@ class ShopifySource {
       await this.getArticles(actions)
       await this.getPages(actions)
     })
+  }
+
+  async setupImages (actions) {
+    const IMAGE_TYPENAME = this.createTypeName(IMAGE)
+    actions.addCollection({ typeName: IMAGE_TYPENAME })
   }
 
   async getProductTypes (actions) {
@@ -62,19 +69,21 @@ class ShopifySource {
 
     const PRODUCT_TYPENAME = this.createTypeName(PRODUCT)
     const COLLECTION_TYPENAME = this.createTypeName(COLLECTION)
+    const IMAGE_TYPENAME = this.createTypeName(IMAGE)
     const collectionStore = actions.addCollection({ typeName: COLLECTION_TYPENAME })
+    const imageStore = actions.getCollection(IMAGE_TYPENAME)
 
     const allCollections = await queryAll(this.shopify, COLLECTIONS_QUERY, this.options.first)
 
     for (const collection of allCollections) {
       const products = collection.products.edges.map(({ node: product }) => createReference(PRODUCT_TYPENAME, product.id))
-      const image = {
-        ...collection.image,
-        altText: collection.image.altText || ''
-      }
+      const image = { ...collection.image, altText: collection.image.altText || '' }
+      const collectionImage = createReference('ShopifyImage', image.id)
+      imageStore.addNode(image)
+
       collectionStore.addNode({
         ...collection,
-        image,
+        image: collectionImage,
         products
       })
     }
@@ -85,16 +94,22 @@ class ShopifySource {
 
     const PRODUCT_TYPENAME = this.createTypeName(PRODUCT)
     const COLLECTION_TYPENAME = this.createTypeName(COLLECTION)
+    const IMAGE_TYPENAME = this.createTypeName(IMAGE)
     const productStore = actions.addCollection({ typeName: PRODUCT_TYPENAME })
+    const imageStore = actions.getCollection(IMAGE_TYPENAME)
 
     const allProducts = await queryAll(this.shopify, PRODUCTS_QUERY, this.options.first)
 
     for (const product of allProducts) {
       const collections = product.collections.edges.map(({ node: collection }) => createReference(COLLECTION_TYPENAME, collection.id))
+      const images = product.images.edges.map(({ node: image }) => {
+        imageStore.addNode({ ...image, altText: image.altText || '' })
+        return createReference(IMAGE_TYPENAME, image.id)
+      })
       productStore.addNode({
         ...product,
         collections: collections,
-        images: product.images.edges.map(({ node: image }) => ({ ...image, altText: image.altText || '' }))
+        images
       })
     }
   }
