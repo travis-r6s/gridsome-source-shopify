@@ -12,12 +12,11 @@ module.exports = {
     {
       use: 'gridsome-source-shopify',
       options: {
-        storeUrl: process.env.SHOPIFY_URL, // Required
-        storefrontToken: process.env.SHOPIFY_TOKEN, //Required
+        storeName: 'my-store' // OR
+        storeUrl: 'https://<my-store>.myshopify.com',
+        storefrontToken: <storefront api token>, //Required
         typeName: 'Shopify' // Optional, default is 'Shopify'
-        types: [ // Optional, default is all types
-          'Product'
-        ],
+        types: [ 'Product', 'Collection' ], // Optional, default is all types
         perPage: 100 // Optional, default is 100
       }
     }
@@ -107,6 +106,54 @@ module.exports = {
           title
           slug
         }
+      }
+    }
+  }
+}
+```
+
+### Articles
+
+```graphql
+{
+  allShopifyArticle (limit: 10) {
+    edges {
+      node {
+        id
+        title
+        publishedAt
+        author {
+          name
+        }
+        blog {
+          id
+          title
+        }
+        contentHtml
+        excerptHtml
+        image {
+          id
+          altText
+          originalSrc
+        }
+      }
+    }
+  }
+}
+```
+
+### Pages
+
+```graphql
+{
+  allShopifyPage {
+    edges {
+      node {
+        id
+        title
+        handle
+        bodySummary
+        body
       }
     }
   }
