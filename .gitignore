@@ -1,4 +1,6 @@
 node_modules
-!src
-*.js
-!.eslintrc.js
+/**
+!/.gitignore
+!/src/
+/src/**
+!/src/**
