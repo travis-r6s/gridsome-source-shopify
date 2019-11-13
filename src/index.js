@@ -157,13 +157,15 @@ class ShopifySource {
 
     for (const product of allProducts) {
       const collections = product.collections.edges.map(({ node: collection }) => createReference(COLLECTION_TYPENAME, collection.id))
+      const variants = product.variants.edges.map(({ node: variant }) => variant)
       const images = product.images.edges.map(({ node: image }) => {
         imageStore.addNode({ ...image, altText: image.altText || '' })
         return createReference(IMAGE_TYPENAME, image.id)
       })
       productStore.addNode({
         ...product,
-        collections: collections,
+        collections,
+        variants,
         images
       })
     }
