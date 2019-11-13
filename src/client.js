@@ -35,7 +35,7 @@ export const queryAll = async (
   query,
   first,
   after,
-  aggregatedResponse,
+  aggregatedResponse
 ) => {
   const { data: { edges, pageInfo } } = await queryOnce(client, query, first, after)
   const lastNode = edges[ edges.length - 1 ]
@@ -51,7 +51,7 @@ export const queryAll = async (
       query,
       first,
       lastNode.cursor,
-      aggregatedResponse,
+      aggregatedResponse
     )
   }
 
