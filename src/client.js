@@ -4,7 +4,7 @@ import prettyjson from 'prettyjson'
 /**
  * Create a Shopify Storefront GraphQL client for the provided name and token.
  */
-export const createClient = ({ storeUrl, storefrontToken }) => new GraphQLClient(`${storeUrl}/api/2019-07/graphql.json`, {
+export const createClient = ({ storeUrl, storefrontToken }) => new GraphQLClient(`${storeUrl}/api/2019-10/graphql.json`, {
   headers: {
     'X-Shopify-Storefront-Access-Token': storefrontToken
   }

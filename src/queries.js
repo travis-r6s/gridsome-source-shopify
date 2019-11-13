@@ -77,6 +77,13 @@ export const COLLECTIONS_QUERY = `
       edges {
         cursor
         node {
+          products(first: 250) {
+            edges {
+              node {
+                id
+              }
+            }
+          }
           description
           descriptionHtml
           handle
@@ -85,13 +92,6 @@ export const COLLECTIONS_QUERY = `
             altText
             id
             originalSrc
-          }
-          products(first: 250) {
-            edges {
-              node {
-                id
-              }
-            }
           }
           title
           updatedAt
@@ -110,7 +110,6 @@ export const PRODUCTS_QUERY = `
       edges {
         cursor
         node {
-          createdAt
           collections (first: $first) {
             edges {
               node {
@@ -118,10 +117,6 @@ export const PRODUCTS_QUERY = `
               }
             }
           }
-          description
-          descriptionHtml
-          handle
-          id
           images(first: 250) {
             edges {
               node {
@@ -131,6 +126,35 @@ export const PRODUCTS_QUERY = `
               }
             }
           }
+          variants(first: 250) {
+            edges {
+              node {
+                availableForSale
+                compareAtPrice: compareAtPriceV2
+                id
+                image {
+                  altText
+                  id
+                  originalSrc
+                }
+                price: priceV2
+                selectedOptions {
+                  name
+                  value
+                }
+                sku
+                title
+                weight
+                weightUnit
+              }
+            }
+          }
+          availableForSale
+          createdAt
+          description
+          descriptionHtml
+          handle
+          id
           onlineStoreUrl
           options {
             id
@@ -152,29 +176,6 @@ export const PRODUCTS_QUERY = `
           tags
           title
           updatedAt
-          variants(first: 250) {
-            edges {
-              node {
-                availableForSale
-                compareAtPrice
-                id
-                image {
-                  altText
-                  id
-                  originalSrc
-                }
-                price
-                selectedOptions {
-                  name
-                  value
-                }
-                sku
-                title
-                weight
-                weightUnit
-              }
-            }
-          }
           vendor
         }
       }
