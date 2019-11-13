@@ -7,7 +7,7 @@ export const ARTICLES_QUERY = `
       edges {
         cursor
         node {
-          author {
+          author: authorV2 {
             bio
             email
             firstName
@@ -34,13 +34,18 @@ export const ARTICLES_QUERY = `
           contentHtml
           excerpt
           excerptHtml
+          handle
           id
           image {
             altText
             id
-            src
+            originalSrc
           }
           publishedAt
+          seo {
+            description
+            title
+          }
           tags
           title
           url
@@ -59,6 +64,10 @@ export const BLOGS_QUERY = `
       edges {
         cursor
         node {
+          authors {
+            email
+          }
+          handle
           id
           title
           url
@@ -194,18 +203,21 @@ export const SHOP_POLICIES_QUERY = `
     shop {
       privacyPolicy {
         body
+        handle
         id
         title
         url
       }
       refundPolicy {
         body
+        handle
         id
         title
         url
       }
       termsOfService {
         body
+        handle
         id
         title
         url
