@@ -6,6 +6,7 @@ This plugin also support the Storefront API's `transformedSrc` image field. You 
 
 ## Usage
 
+`gridsome.config.js`
 ```js
 module.exports = {
   plugins: [
@@ -22,6 +23,67 @@ module.exports = {
     }
   ]
 }
+```
+
+## Routes & Templates
+
+Now you can create a template called `ShopifyProduct.vue`, and specify the route for it - Gridsome will automatically generate pages for all products.
+
+`gridsome.config.js`
+```js
+module.exports = {
+  templates: {
+      ShopifyProduct: '/product/:handle'
+  }
+}
+```
+  
+You can also specify templates to use if you do not want to name the template files `Shopify<type>`, or if you want to change the page routes:
+
+`gridsome.config.js`
+```js
+module.exports = {
+  templates: {
+      ShopifyProduct: [
+        {
+          path: '/product/:handle',
+          component: './src/templates/Product.vue'
+        }
+      ],
+      ShopifyCollection: [
+        {
+          path: '/collection/:handle',
+          component: './src/templates/Collection.vue'
+        }
+      ]
+    },
+  }
+  ```
+  
+## Page Query
+
+Once you have specified the route for a type, you can query it by ID.
+
+```vue
+<page-query>
+query Product ($id: ID!) {
+  shopifyProduct (id: $id) {
+    id
+    descriptionHtml
+    title
+  }
+}
+</page-query>
+```
+
+Now this product will be available at `this.$page.shopifyProduct`:
+```vue
+<template>
+  <Layout>
+    <h1>{{ $page.shopifyProduct.title }}</h3>
+    <div v-html="$page.shopifyProduct.descriptionHtml" />
+  </Layout>
+</template>
 ```
 
 ## Example Queries
