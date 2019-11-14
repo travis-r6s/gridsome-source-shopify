@@ -133,7 +133,7 @@ class ShopifySource {
     for (const collection of allCollections) {
       const products = collection.products.edges.map(({ node: product }) => createReference(PRODUCT_TYPENAME, product.id))
       const image = { ...collection.image, altText: collection.image.altText || '' }
-      const collectionImage = createReference('ShopifyImage', image.id)
+      const collectionImage = createReference(IMAGE_TYPENAME, image.id)
       imageStore.addNode(image)
 
       collectionStore.addNode({
