@@ -190,15 +190,20 @@ class ShopifySource {
 
     const ARTICLE_TYPENAME = this.createTypeName(ARTICLE)
     const BLOG_TYPENAME = this.createTypeName(BLOG)
+    const IMAGE_TYPENAME = this.createTypeName(IMAGE)
     const articleStore = actions.addCollection({ typeName: ARTICLE_TYPENAME })
+    const imageStore = actions.getCollection(IMAGE_TYPENAME)
 
     const allArticles = await queryAll(this.shopify, ARTICLES_QUERY, this.options.perPage)
 
     for (const article of allArticles) {
       const blog = createReference(BLOG_TYPENAME, article.blog.id)
+      imageStore.addNode({ ...article.image, altText: article.image.altText || '' })
+      const image = createReference(IMAGE_TYPENAME, article.image.id)
       articleStore.addNode({
         ...article,
-        blog
+        blog,
+        image
       })
     }
   }
