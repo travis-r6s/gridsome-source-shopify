@@ -8,6 +8,11 @@
     "name": "Travis Reynolds"
   },
   "license": "MIT",
+  "keywords": [
+    "gridsome",
+    "gridsome-source",
+    "shopify"
+  ],
   "scripts": {
     "watch": "babel src --watch -d .",
     "build": "babel src -d ."
