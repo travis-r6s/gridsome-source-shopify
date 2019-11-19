@@ -7,6 +7,7 @@
     "email": "travis@travisreynolds.dev",
     "name": "Travis Reynolds"
   },
+  "repo": "https://github.com/thetre97/gridsome-source-shopify",
   "license": "MIT",
   "keywords": [
     "gridsome",
