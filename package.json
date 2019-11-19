@@ -1,5 +1,5 @@
 {
-  "name": "gridsome-source-shopify",
+  "name": "gridsome-source-shopify-v2",
   "description": "Shopify source plugin for Gridsome",
   "version": "0.1.0",
   "main": "index.js",
