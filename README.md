@@ -37,7 +37,7 @@ module.exports = {
   }
 }
 ```
-  
+
 You can also specify templates to use if you do not want to name the template files `Shopify<type>`, or if you want to change the page routes:
 
 `gridsome.config.js`
@@ -59,7 +59,7 @@ module.exports = {
     },
   }
   ```
-  
+
 ## Page Query
 
 Once you have specified the route for a type, you can query it by ID.
