@@ -1,4 +1,4 @@
-# gridsome-source-shopify-v2
+# gridsome-source-shopify
 
 > Shopify source plugin for Gridsome
 
@@ -11,11 +11,11 @@ This plugin also support the Storefront API's `transformedSrc` image field. You 
 module.exports = {
   plugins: [
     {
-      use: 'gridsome-source-shopify-v2',
+      use: 'gridsome-source-shopify',
       options: {
-        storeName: 'my-store' // OR
+        storeName: <my-store> // OR
         storeUrl: 'https://<my-store>.myshopify.com',
-        storefrontToken: <storefront api token>, //Required
+        storefrontToken: <storefront-api-token>, //Required
         typeName: 'Shopify' // Optional, default is 'Shopify'
         types: [ 'Product', 'Collection' ], // Optional, default is all types
         perPage: 100 // Optional, default is 100
