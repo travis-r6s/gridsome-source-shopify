@@ -132,7 +132,7 @@ class ShopifySource {
 
     for (const collection of allCollections) {
       const products = collection.products.edges.map(({ node: product }) => createReference(PRODUCT_TYPENAME, product.id))
-      const image = { ...collection.image, altText: collection.image.altText || '' }
+      const image = { ...collection.image, altText: collection.image?.altText }
       const collectionImage = createReference(IMAGE_TYPENAME, image.id)
       imageStore.addNode(image)
 
@@ -158,7 +158,7 @@ class ShopifySource {
     for (const product of allProducts) {
       const collections = product.collections.edges.map(({ node: collection }) => createReference(COLLECTION_TYPENAME, collection.id))
       const images = product.images.edges.map(({ node: image }) => {
-        imageStore.addNode({ ...image, altText: image.altText || '' })
+        imageStore.addNode({ ...image, altText: image.altText })
         return createReference(IMAGE_TYPENAME, image.id)
       })
       const variants = product.variants.edges.map(({ node: variant }) => {
@@ -198,7 +198,7 @@ class ShopifySource {
 
     for (const article of allArticles) {
       const blog = createReference(BLOG_TYPENAME, article.blog.id)
-      imageStore.addNode({ ...article.image, altText: article.image.altText || '' })
+      imageStore.addNode({ ...article.image, altText: article.image?.altText })
       const image = createReference(IMAGE_TYPENAME, article.image.id)
       articleStore.addNode({
         ...article,
