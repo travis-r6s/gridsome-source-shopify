@@ -132,19 +132,14 @@ class ShopifySource {
 
     for (const collection of allCollections) {
       const products = collection.products.edges.map(({ node: product }) => createReference(PRODUCT_TYPENAME, product.id))
-
-      const collectionImage = () => {
-        if (!collection.image) return
-        const image = { ...collection.image, altText: collection.image?.altText }
-        const collectionImage = createReference(IMAGE_TYPENAME, image.id)
-        imageStore.addNode(image)
-        return collectionImage
-      }
+      const image = { ...collection.image, altText: collection.image?.altText }
+      const collectionImage = createReference(IMAGE_TYPENAME, image.id)
+      imageStore.addNode(image)
 
       collectionStore.addNode({
-        image: collectionImage(),
-        products,
-        ...collection
+        ...collection,
+        image: collectionImage,
+        products
       })
     }
   }
@@ -162,25 +157,19 @@ class ShopifySource {
 
     for (const product of allProducts) {
       const collections = product.collections.edges.map(({ node: collection }) => createReference(COLLECTION_TYPENAME, collection.id))
-      const productImages = () => {
-        if (!product.images.length) return []
-        const productImages = product.images.edges.map(({ node: image }) => {
-          imageStore.addNode({ ...image, altText: image.altText })
-          return createReference(IMAGE_TYPENAME, image.id)
-        })
-        return productImages
-      }
+      const images = product.images.edges.map(({ node: image }) => {
+        imageStore.addNode({ ...image, altText: image.altText })
+        return createReference(IMAGE_TYPENAME, image.id)
+      })
       const variants = product.variants.edges.map(({ node: variant }) => {
-        if (!variant.image) return variant
         const image = createReference(IMAGE_TYPENAME, variant.image.id)
         return { ...variant, image }
       })
-
       productStore.addNode({
-        images: productImages(),
+        ...product,
         collections,
         variants,
-        ...product
+        images
       })
     }
   }
@@ -209,17 +198,12 @@ class ShopifySource {
 
     for (const article of allArticles) {
       const blog = createReference(BLOG_TYPENAME, article.blog.id)
-
-      const articleImage = () => {
-        if (!article.image) return
-        imageStore.addNode({ ...article.image, altText: article.image?.altText })
-        const image = createReference(IMAGE_TYPENAME, article.image.id)
-        return image
-      }
+      imageStore.addNode({ ...article.image, altText: article.image?.altText })
+      const image = createReference(IMAGE_TYPENAME, article.image.id)
       articleStore.addNode({
-        image: articleImage(),
+        ...article,
         blog,
-        ...article
+        image
       })
     }
   }
