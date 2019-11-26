@@ -4,6 +4,17 @@
 
 This plugin also support the Storefront API's `transformedSrc` image field. You can create different image sizes and scales with this - for example, creating a thumbnail image.
 
+## Install
+yarn:
+```
+yarn add gridsome-source-shopify
+```
+
+npm:
+```
+npm install gridsome-source-shopify
+```
+
 ## Usage
 
 `gridsome.config.js`
