@@ -211,10 +211,10 @@ class ShopifySource {
     let typeName = this.options.typeName
     // If typeName is blank, we need to rename these types anyway, as they conflict with internal Gridsome types.
     const types = ['Page', 'Image']
-    if (types.includes(name)) typeName = 'Shopify'
+    if (!typeName && types.includes(name)) typeName = 'Shopify'
 
     return camelCase(`${typeName} ${name}`, { pascalCase: true }) + suffix
   }
 }
 
-export default ShopifySource
+module.exports = ShopifySource
