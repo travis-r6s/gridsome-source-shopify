@@ -2,7 +2,7 @@
 
 > Shopify source plugin for Gridsome
 
-This plugin supports the Storefront API's `transformedSrc` image field, as well as currency formatting.
+This plugin supports the Storefront API's [`transformedSrc` image field](#transformsrc), as well as [currency formatting](#amount).
 
 ## Install
 yarn:
