@@ -217,4 +217,4 @@ class ShopifySource {
   }
 }
 
-module.exports = ShopifySource
+export default ShopifySource
