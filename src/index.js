@@ -1,4 +1,5 @@
 import camelCase from 'camelcase'
+import nanoid from 'nanoid'
 import { createClient, queryAll } from './client'
 import { createSchema } from './schema'
 import { COLLECTIONS_QUERY, PRODUCTS_QUERY, PRODUCT_TYPES_QUERY, ARTICLES_QUERY, BLOGS_QUERY, PAGES_QUERY } from './queries'
@@ -10,6 +11,7 @@ const ARTICLE = 'Article'
 const BLOG = 'Blog'
 const COLLECTION = 'Collection'
 const PRODUCT = 'Product'
+const PRODUCT_VARIANT_PRICE = '_Variants_Price'
 const PAGE = 'Page'
 const PRODUCT_TYPE = 'ProductType'
 const IMAGE = 'Image'
@@ -36,9 +38,10 @@ class ShopifySource {
     this.shopify = createClient(options)
 
     // Create custom schema type for ShopifyImage
-    api.loadSource(({ addSchemaTypes, schema, addSchemaResolvers }) => {
+    api.loadSource(actions => {
       const IMAGE_TYPENAME = this.createTypeName(IMAGE)
-      createSchema({ addSchemaTypes, schema, addSchemaResolvers, IMAGE_TYPENAME })
+      const PRODUCT_VARIANT_PRICE_TYPENAME = this.createTypeName(PRODUCT + PRODUCT_VARIANT_PRICE)
+      createSchema(actions, { IMAGE_TYPENAME, PRODUCT_VARIANT_PRICE_TYPENAME })
     })
 
     // Load data into store
@@ -100,9 +103,11 @@ class ShopifySource {
     const { createReference } = actions
 
     const PRODUCT_TYPENAME = this.createTypeName(PRODUCT)
+    const PRODUCT_VARIANT_PRICE_TYPENAME = this.createTypeName(PRODUCT + PRODUCT_VARIANT_PRICE)
     const COLLECTION_TYPENAME = this.createTypeName(COLLECTION)
     const IMAGE_TYPENAME = this.createTypeName(IMAGE)
     const productStore = actions.addCollection({ typeName: PRODUCT_TYPENAME })
+    const priceStore = actions.addCollection({ typeName: PRODUCT_VARIANT_PRICE_TYPENAME })
     const imageStore = actions.getCollection(IMAGE_TYPENAME)
 
     const allProducts = await queryAll(this.shopify, PRODUCTS_QUERY, this.options.perPage)
@@ -115,6 +120,8 @@ class ShopifySource {
       })
       const variants = product.variants.edges.map(({ node: variant }) => {
         const image = createReference(IMAGE_TYPENAME, variant.image.id)
+        const variantPrice = priceStore.addNode({ id: nanoid(), ...variant.price })
+        variant.price = createReference(PRODUCT_VARIANT_PRICE_TYPENAME, variantPrice.id)
         return { ...variant, image }
       })
       productStore.addNode({
