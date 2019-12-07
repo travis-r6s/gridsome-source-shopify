@@ -43,6 +43,7 @@ class ShopifySource {
     // Create custom schema type for ShopifyImage
     api.loadSource(actions => {
       const IMAGE_TYPENAME = this.createTypeName(IMAGE)
+      console.log(IMAGE_TYPENAME)
       const PRODUCT_VARIANT_PRICE_TYPENAME = this.createTypeName(PRODUCT, PRODUCT_VARIANT_PRICE)
       const PRODUCT_MIN_PRICE_TYPENAME = this.createTypeName(PRODUCT, PRODUCT_MIN_PRICE_RANGE)
       const PRODUCT_MAX_PRICE_TYPENAME = this.createTypeName(PRODUCT, PRODUCT_MAX_PRICE_RANGE)
@@ -206,8 +207,13 @@ class ShopifySource {
     }
   }
 
-  createTypeName (name = '', suffix = '') {
-    return camelCase(`${this.options.typeName} ${name}`, { pascalCase: true }) + suffix
+  createTypeName (name, suffix = '') {
+    let typeName = this.options.typeName
+    // If typeName is blank, we need to rename these types anyway, as they conflict with internal Gridsome types.
+    const types = ['Page', 'Image']
+    if (types.includes(name)) typeName = 'Shopify'
+
+    return camelCase(`${typeName} ${name}`, { pascalCase: true }) + suffix
   }
 }
 
