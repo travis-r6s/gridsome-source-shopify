@@ -21,14 +21,17 @@ export const createSchema = ({ addSchemaTypes, schema, addSchemaResolvers }, { I
     }),
     schema.createObjectType({
       name: PRODUCT_VARIANT_PRICE_TYPENAME,
+      interfaces: ['Node'],
       ...currencyAmountFieldSchema
     }),
     schema.createObjectType({
       name: PRODUCT_MIN_PRICE_TYPENAME,
+      interfaces: ['Node'],
       ...currencyAmountFieldSchema
     }),
     schema.createObjectType({
       name: PRODUCT_MAX_PRICE_TYPENAME,
+      interfaces: ['Node'],
       ...currencyAmountFieldSchema
     })
   ])
@@ -66,13 +69,13 @@ export const createSchema = ({ addSchemaTypes, schema, addSchemaResolvers }, { I
   })
 }
 
+// Currency Formatter
 const currencyFormatter = ({ amount, currencyCode }, { locale = 'en-US', currency, format = false }) => {
   if (!currency && !format) return amount
   return new Intl.NumberFormat(locale, { style: 'currency', currency: currency || currencyCode }).format(amount)
 }
 
 const currencyAmountFieldSchema = {
-  interfaces: ['Node'],
   fields: {
     amount: 'String',
     currencyCode: 'String'
