@@ -3,6 +3,7 @@ import nanoid from 'nanoid'
 import { createClient, queryAll } from './client'
 import { createSchema } from './schema'
 import { COLLECTIONS_QUERY, PRODUCTS_QUERY, PRODUCT_TYPES_QUERY, ARTICLES_QUERY, BLOGS_QUERY, PAGES_QUERY } from './queries'
+
 // Node prefix
 const TYPE_PREFIX = 'Shopify'
 
@@ -40,7 +41,7 @@ class ShopifySource {
     // Create custom schema type for ShopifyImage
     api.loadSource(actions => {
       const IMAGE_TYPENAME = this.createTypeName(IMAGE)
-      const PRODUCT_VARIANT_PRICE_TYPENAME = this.createTypeName(PRODUCT + PRODUCT_VARIANT_PRICE)
+      const PRODUCT_VARIANT_PRICE_TYPENAME = this.createTypeName(PRODUCT, PRODUCT_VARIANT_PRICE)
       createSchema(actions, { IMAGE_TYPENAME, PRODUCT_VARIANT_PRICE_TYPENAME })
     })
 
@@ -103,7 +104,7 @@ class ShopifySource {
     const { createReference } = actions
 
     const PRODUCT_TYPENAME = this.createTypeName(PRODUCT)
-    const PRODUCT_VARIANT_PRICE_TYPENAME = this.createTypeName(PRODUCT + PRODUCT_VARIANT_PRICE)
+    const PRODUCT_VARIANT_PRICE_TYPENAME = this.createTypeName(PRODUCT, PRODUCT_VARIANT_PRICE)
     const COLLECTION_TYPENAME = this.createTypeName(COLLECTION)
     const IMAGE_TYPENAME = this.createTypeName(IMAGE)
     const productStore = actions.addCollection({ typeName: PRODUCT_TYPENAME })
@@ -178,8 +179,8 @@ class ShopifySource {
     }
   }
 
-  createTypeName (name = '') {
-    return camelCase(`${this.options.typeName} ${name}`, { pascalCase: true })
+  createTypeName (name = '', suffix = '') {
+    return camelCase(`${this.options.typeName} ${name}`, { pascalCase: true }) + suffix
   }
 }
 
