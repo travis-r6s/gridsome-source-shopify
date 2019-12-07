@@ -94,7 +94,7 @@ This plugin adds a couple of custom resolvers to help with image sizing, and cur
 
 #### `transformSrc`
 
-Each image type includes a `transformSrc` field. You can create different image sizes and scales with this - for example, creating a thumbnail image, and a card/cover image:
+Each image type includes a `transformSrc` field, similar to the Shopify Storefront's. You can create different image sizes and scales with this - for example, creating a thumbnail image, and a card/cover image:
 
 ```graphql
 ...
