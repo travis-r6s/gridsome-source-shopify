@@ -13,6 +13,8 @@ const BLOG = 'Blog'
 const COLLECTION = 'Collection'
 const PRODUCT = 'Product'
 const PRODUCT_VARIANT_PRICE = '_Variants_Price'
+const PRODUCT_MIN_PRICE_RANGE = '_PriceRange_MinVariantPrice'
+const PRODUCT_MAX_PRICE_RANGE = '_PriceRange_MaxVariantPrice'
 const PAGE = 'Page'
 const PRODUCT_TYPE = 'ProductType'
 const IMAGE = 'Image'
@@ -42,7 +44,10 @@ class ShopifySource {
     api.loadSource(actions => {
       const IMAGE_TYPENAME = this.createTypeName(IMAGE)
       const PRODUCT_VARIANT_PRICE_TYPENAME = this.createTypeName(PRODUCT, PRODUCT_VARIANT_PRICE)
-      createSchema(actions, { IMAGE_TYPENAME, PRODUCT_VARIANT_PRICE_TYPENAME })
+      const PRODUCT_MIN_PRICE_TYPENAME = this.createTypeName(PRODUCT, PRODUCT_MIN_PRICE_RANGE)
+      const PRODUCT_MAX_PRICE_TYPENAME = this.createTypeName(PRODUCT, PRODUCT_MAX_PRICE_RANGE)
+
+      createSchema(actions, { IMAGE_TYPENAME, PRODUCT_VARIANT_PRICE_TYPENAME, PRODUCT_MIN_PRICE_TYPENAME, PRODUCT_MAX_PRICE_TYPENAME })
     })
 
     // Load data into store
@@ -107,6 +112,7 @@ class ShopifySource {
     const PRODUCT_VARIANT_PRICE_TYPENAME = this.createTypeName(PRODUCT, PRODUCT_VARIANT_PRICE)
     const COLLECTION_TYPENAME = this.createTypeName(COLLECTION)
     const IMAGE_TYPENAME = this.createTypeName(IMAGE)
+
     const productStore = actions.addCollection({ typeName: PRODUCT_TYPENAME })
     const priceStore = actions.addCollection({ typeName: PRODUCT_VARIANT_PRICE_TYPENAME })
     const imageStore = actions.getCollection(IMAGE_TYPENAME)
@@ -115,6 +121,8 @@ class ShopifySource {
 
     for (const product of allProducts) {
       const collections = product.collections.edges.map(({ node: collection }) => createReference(COLLECTION_TYPENAME, collection.id))
+      const priceRange = this.getProductPriceRanges(product, actions)
+
       const images = product.images.edges.map(({ node: image }) => {
         imageStore.addNode({ ...image, altText: image.altText })
         return createReference(IMAGE_TYPENAME, image.id)
@@ -125,13 +133,32 @@ class ShopifySource {
         variant.price = createReference(PRODUCT_VARIANT_PRICE_TYPENAME, variantPrice.id)
         return { ...variant, image }
       })
+
       productStore.addNode({
         ...product,
         collections,
+        priceRange,
         variants,
         images
       })
     }
+  }
+
+  getProductPriceRanges (product, actions) {
+    const { createReference } = actions
+
+    const PRODUCT_MIN_PRICE_TYPENAME = this.createTypeName(PRODUCT, PRODUCT_MIN_PRICE_RANGE)
+    const PRODUCT_MAX_PRICE_TYPENAME = this.createTypeName(PRODUCT, PRODUCT_MAX_PRICE_RANGE)
+
+    const minPriceRangeStore = actions.addCollection({ typeName: PRODUCT_MIN_PRICE_TYPENAME })
+    const maxPriceRangeStore = actions.addCollection({ typeName: PRODUCT_MAX_PRICE_TYPENAME })
+
+    const minVariantPrice = minPriceRangeStore.addNode({ id: nanoid(), ...product.priceRange.minVariantPrice })
+    const minVariantPriceId = createReference(PRODUCT_MIN_PRICE_TYPENAME, minVariantPrice.id)
+    const maxVariantPrice = maxPriceRangeStore.addNode({ id: nanoid(), ...product.priceRange.maxVariantPrice })
+    const maxVariantPriceId = createReference(PRODUCT_MAX_PRICE_TYPENAME, maxVariantPrice.id)
+
+    return { minVariantPrice: minVariantPriceId, maxVariantPrice: maxVariantPriceId }
   }
 
   async getBlogs (actions) {
