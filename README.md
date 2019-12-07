@@ -2,7 +2,7 @@
 
 > Shopify source plugin for Gridsome
 
-This plugin also support the Storefront API's `transformedSrc` image field. You can create different image sizes and scales with this - for example, creating a thumbnail image.
+This plugin supports the Storefront API's `transformedSrc` image field, as well as currency formatting.
 
 ## Install
 yarn:
@@ -69,7 +69,8 @@ module.exports = {
       ]
     },
   }
-  ```
+```
+
 
 ## Page Query
 
@@ -95,6 +96,46 @@ Now this product will be available at `this.$page.shopifyProduct`:
     <div v-html="$page.shopifyProduct.descriptionHtml" />
   </Layout>
 </template>
+```
+
+
+## Additional Resolvers
+
+This plugin adds a couple of custom resolvers to help with image sizing, and currency formatting.
+
+#### `transformSrc`
+
+Each image type includes a `transformSrc` field, similar to the Shopify Storefront's. You can create different image sizes and scales with this - for example, creating a thumbnail image, and a card/cover image:
+
+```graphql
+...
+  image {
+    ...
+    thumbnail: transformedSrc(maxWidth: 100, maxHeight: 100, crop: CENTER)
+    coverImage: transformedSrc(maxWidth: 600, maxHeight: 400, crop: CENTER)
+  }
+...
+```
+
+#### `amount`
+
+Each price type includes extra formatting arguments in the `amount` field, where you can specify if you want to, and how to, format the price asa  currency:
+
+```graphql
+...
+  price {
+    amount(format: true) # Defaults to en-US locale, and the store's currency code.
+    # Result: $25.00
+  }
+...
+...
+  priceRange {
+    minVariantPrice {
+      amount(locale: "en-GB", currency: "GBP") # Specify a locale and a currency code to use.
+      # Result: £25.00
+    }
+  }
+...
 ```
 
 ## Example Queries
