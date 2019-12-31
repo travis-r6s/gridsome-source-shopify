@@ -45,7 +45,7 @@ export const createSchema = ({ addSchemaTypes, schema, addSchemaResolvers }, { I
           scale: 'Int'
         },
         resolve ({ originalSrc }, { maxHeight, maxWidth, crop, scale }) {
-          // Create the transform for Shopif CDN
+          // Create the transform for Shopify CDN
           const dot = originalSrc.lastIndexOf('.')
           const path = originalSrc.slice(0, dot)
           const ext = originalSrc.slice(dot)
