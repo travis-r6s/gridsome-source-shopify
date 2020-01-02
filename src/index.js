@@ -93,13 +93,16 @@ class ShopifySource {
 
     for (const collection of allCollections) {
       const products = collection.products.edges.map(({ node: product }) => createReference(PRODUCT_TYPENAME, product.id))
-      const image = { ...collection.image, altText: collection.image?.altText }
-      const collectionImage = createReference(IMAGE_TYPENAME, image.id)
-      imageStore.addNode(image)
+
+      let image
+      if (collection.image) {
+        imageStore.addNode({ ...image, altText: collection.image?.altText })
+        image = createReference(IMAGE_TYPENAME, collection.image.id)
+      }
 
       collectionStore.addNode({
         ...collection,
-        image: collectionImage,
+        image,
         products
       })
     }
@@ -124,13 +127,19 @@ class ShopifySource {
       const priceRange = this.getProductPriceRanges(product, actions)
 
       const images = product.images.edges.map(({ node: image }) => {
-        imageStore.addNode({ ...image, altText: image.altText })
+        imageStore.addNode({ ...image, altText: image?.altText })
         return createReference(IMAGE_TYPENAME, image.id)
       })
+
       const variants = product.variants.edges.map(({ node: variant }) => {
-        const image = createReference(IMAGE_TYPENAME, variant.image.id)
+        let image
+        if (variant.image) {
+          image = createReference(IMAGE_TYPENAME, variant.image.id)
+        }
+
         const variantPrice = priceStore.addNode({ id: nanoid(), ...variant.price })
         variant.price = createReference(PRODUCT_VARIANT_PRICE_TYPENAME, variantPrice.id)
+
         return { ...variant, image }
       })
 
@@ -184,9 +193,14 @@ class ShopifySource {
     const allArticles = await queryAll(this.shopify, ARTICLES_QUERY, this.options.perPage)
 
     for (const article of allArticles) {
+      let image
+      if (article.image) {
+        imageStore.addNode({ ...article.image, altText: article.image?.altText })
+        image = createReference(IMAGE_TYPENAME, article.image.id)
+      }
+
       const blog = createReference(BLOG_TYPENAME, article.blog.id)
-      imageStore.addNode({ ...article.image, altText: article.image?.altText })
-      const image = createReference(IMAGE_TYPENAME, article.image.id)
+
       articleStore.addNode({
         ...article,
         blog,
