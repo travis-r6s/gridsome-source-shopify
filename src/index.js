@@ -96,7 +96,7 @@ class ShopifySource {
 
       let image
       if (collection.image) {
-        imageStore.addNode({ ...image, altText: collection.image?.altText })
+        imageStore.addNode({ ...collection.image, altText: collection.image?.altText })
         image = createReference(IMAGE_TYPENAME, collection.image.id)
       }
 
