@@ -199,7 +199,7 @@ export default {
 </script>
 ```
 
-All Shopify products have at least one variant, so you will probably want to filter out the default variant:
+All Shopify products have at least one variant, so you will probably want to filter this out:
 
 ```vue
 <template>
