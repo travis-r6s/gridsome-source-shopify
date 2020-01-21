@@ -199,7 +199,7 @@ export default {
 </script>
 ```
 
-All Shopify products have at least one variant, so you will probably want to filter this out:
+All Shopify products have at least one variant - even if a product has no options (i.e. colour/size), it will have a default variant that contains the base product price/title etc. This single variant will also create a default option (`title`), which you will most likely want to filter out, as there is only one variant you can select anyway. If this is the case then the product options should be hidden, and the single variant set as the default selected option (as above):
 
 ```vue
 <template>
