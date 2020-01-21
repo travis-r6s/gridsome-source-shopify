@@ -4,6 +4,15 @@
 
 This plugin supports the Storefront API's [`transformedSrc` image field](#transformsrc), as well as [currency formatting](#amount).
 
+
+1. [Install](#install)
+2. [Usage](#usage)
+3. [Routes & Templates](#routes--templates)
+4. [Page Query](#page-query)
+5. [Additional Resolvers](#additional-resolvers)
+6. [Helpful Snippets](#helpful-snippets)
+7. [Example Queries](#example-queries)
+
 ## Install
 yarn:
 ```
@@ -138,7 +147,7 @@ Each price type includes extra formatting arguments in the `amount` field, where
 ...
 ```
 
-### Helpful Snippets
+## Helpful Snippets
 
 You will probably need to find a product variant by the options that have been selected - computed properties are your friend...
 
