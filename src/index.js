@@ -127,7 +127,7 @@ class ShopifySource {
         const variantPrice = priceStore.addNode({ id: nanoid(), ...variant.price })
         variant.price = actions.createReference(variantPrice)
 
-        return { ...variant }
+        return variant
       })
 
       productStore.addNode({
