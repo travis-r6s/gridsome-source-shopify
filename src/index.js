@@ -12,12 +12,10 @@ const ARTICLE = 'Article'
 const BLOG = 'Blog'
 const COLLECTION = 'Collection'
 const PRODUCT = 'Product'
-const PRODUCT_VARIANT_PRICE = '_Variants_Price'
-const PRODUCT_MIN_PRICE_RANGE = '_PriceRange_MinVariantPrice'
-const PRODUCT_MAX_PRICE_RANGE = '_PriceRange_MaxVariantPrice'
 const PAGE = 'Page'
 const PRODUCT_TYPE = 'ProductType'
-const IMAGE = 'Image'
+const IMAGE_TYPENAME = 'Image'
+const PRICE_TYPENAME = 'Price'
 
 class ShopifySource {
   static defaultOptions () {
@@ -42,19 +40,14 @@ class ShopifySource {
 
     // Create custom schema type for ShopifyImage
     api.loadSource(actions => {
-      const IMAGE_TYPENAME = this.createTypeName(IMAGE)
-      const PRODUCT_VARIANT_PRICE_TYPENAME = this.createTypeName(PRODUCT, PRODUCT_VARIANT_PRICE)
-      const PRODUCT_MIN_PRICE_TYPENAME = this.createTypeName(PRODUCT, PRODUCT_MIN_PRICE_RANGE)
-      const PRODUCT_MAX_PRICE_TYPENAME = this.createTypeName(PRODUCT, PRODUCT_MAX_PRICE_RANGE)
-
-      createSchema(actions, { IMAGE_TYPENAME, PRODUCT_VARIANT_PRICE_TYPENAME, PRODUCT_MIN_PRICE_TYPENAME, PRODUCT_MAX_PRICE_TYPENAME })
+      createSchema(actions, { IMAGE_TYPENAME, PRICE_TYPENAME })
     })
 
     // Load data into store
     api.loadSource(async actions => {
       console.log(`Loading data from ${options.storeUrl}`)
 
-      await this.setupImages(actions)
+      await this.setupStore(actions)
       await this.getProductTypes(actions)
       await this.getCollections(actions)
       await this.getProducts(actions)
@@ -64,8 +57,8 @@ class ShopifySource {
     })
   }
 
-  async setupImages (actions) {
-    const IMAGE_TYPENAME = this.createTypeName(IMAGE)
+  async setupStore (actions) {
+    actions.addCollection({ typeName: PRICE_TYPENAME })
     actions.addCollection({ typeName: IMAGE_TYPENAME })
   }
 
@@ -85,7 +78,6 @@ class ShopifySource {
 
     const PRODUCT_TYPENAME = this.createTypeName(PRODUCT)
     const COLLECTION_TYPENAME = this.createTypeName(COLLECTION)
-    const IMAGE_TYPENAME = this.createTypeName(IMAGE)
     const collectionStore = actions.addCollection({ typeName: COLLECTION_TYPENAME })
     const imageStore = actions.getCollection(IMAGE_TYPENAME)
 
@@ -112,13 +104,11 @@ class ShopifySource {
     const { createReference } = actions
 
     const PRODUCT_TYPENAME = this.createTypeName(PRODUCT)
-    const PRODUCT_VARIANT_PRICE_TYPENAME = this.createTypeName(PRODUCT, PRODUCT_VARIANT_PRICE)
     const COLLECTION_TYPENAME = this.createTypeName(COLLECTION)
-    const IMAGE_TYPENAME = this.createTypeName(IMAGE)
 
     const productStore = actions.addCollection({ typeName: PRODUCT_TYPENAME })
-    const priceStore = actions.addCollection({ typeName: PRODUCT_VARIANT_PRICE_TYPENAME })
     const imageStore = actions.getCollection(IMAGE_TYPENAME)
+    const priceStore = actions.getCollection(PRICE_TYPENAME)
 
     const allProducts = await queryAll(this.shopify, PRODUCTS_QUERY, this.options.perPage)
 
@@ -138,7 +128,7 @@ class ShopifySource {
         }
 
         const variantPrice = priceStore.addNode({ id: nanoid(), ...variant.price })
-        variant.price = createReference(PRODUCT_VARIANT_PRICE_TYPENAME, variantPrice.id)
+        variant.price = createReference(PRICE_TYPENAME, variantPrice.id)
 
         return { ...variant, image }
       })
@@ -156,16 +146,11 @@ class ShopifySource {
   getProductPriceRanges (product, actions) {
     const { createReference } = actions
 
-    const PRODUCT_MIN_PRICE_TYPENAME = this.createTypeName(PRODUCT, PRODUCT_MIN_PRICE_RANGE)
-    const PRODUCT_MAX_PRICE_TYPENAME = this.createTypeName(PRODUCT, PRODUCT_MAX_PRICE_RANGE)
-
-    const minPriceRangeStore = actions.addCollection({ typeName: PRODUCT_MIN_PRICE_TYPENAME })
-    const maxPriceRangeStore = actions.addCollection({ typeName: PRODUCT_MAX_PRICE_TYPENAME })
-
-    const minVariantPrice = minPriceRangeStore.addNode({ id: nanoid(), ...product.priceRange.minVariantPrice })
-    const minVariantPriceId = createReference(PRODUCT_MIN_PRICE_TYPENAME, minVariantPrice.id)
-    const maxVariantPrice = maxPriceRangeStore.addNode({ id: nanoid(), ...product.priceRange.maxVariantPrice })
-    const maxVariantPriceId = createReference(PRODUCT_MAX_PRICE_TYPENAME, maxVariantPrice.id)
+    const priceStore = actions.getCollection(PRICE_TYPENAME)
+    const minVariantPrice = priceStore.addNode({ id: nanoid(), ...product.priceRange.minVariantPrice })
+    const minVariantPriceId = createReference(PRICE_TYPENAME, minVariantPrice.id)
+    const maxVariantPrice = priceStore.addNode({ id: nanoid(), ...product.priceRange.maxVariantPrice })
+    const maxVariantPriceId = createReference(PRICE_TYPENAME, maxVariantPrice.id)
 
     return { minVariantPrice: minVariantPriceId, maxVariantPrice: maxVariantPriceId }
   }
@@ -186,7 +171,6 @@ class ShopifySource {
 
     const ARTICLE_TYPENAME = this.createTypeName(ARTICLE)
     const BLOG_TYPENAME = this.createTypeName(BLOG)
-    const IMAGE_TYPENAME = this.createTypeName(IMAGE)
     const articleStore = actions.addCollection({ typeName: ARTICLE_TYPENAME })
     const imageStore = actions.getCollection(IMAGE_TYPENAME)
 
