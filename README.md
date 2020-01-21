@@ -138,6 +138,93 @@ Each price type includes extra formatting arguments in the `amount` field, where
 ...
 ```
 
+### Helpful Snippets
+
+You will probably need to find a product variant by the options that have been selected - computed properties are your friend...
+
+```vue
+<template>
+  ...
+    <div
+      v-for="option in $page.shopifyProduct.options"
+      :key="option.id"
+      class="field">
+      <div class="control">
+        <label
+          :for="option.name"
+          class="label">
+          {{ option.name }}
+          <div class="select is-fullwidth">
+            <select
+              :id="option.name"
+              v-model="selectedOptions[option.name]">
+              <option
+                v-for="value in option.values"
+                :key="value"
+                :value="value">
+                {{ value }}
+              </option>
+            </select>
+          </div>
+        </label>
+      </div>
+    </div>
+  ...
+</template>
+
+<script>
+export default {
+  data: () => ({
+    selectedOptions: {}
+  }),
+  computed: {
+    currentVariant () {
+      // Find a variant where every variants options matches those that are currently selected
+      return this.$page.shopifyProduct.variants.find(variant => variant.selectedOptions.every(({ name, value }) => value === this.selectedOptions[ name ]))
+    }
+  },
+  // Set the first variant as a default option
+  mounted () {
+    const [firstVariant] = this.product.variants
+    this.selectedOptions = firstVariant.selectedOptions.reduce((options, { name, value }) => ({ [ name ]: value, ...options }), {})
+  },
+  // The mounted hook doesn't always run on page change - so make sure we set the first variant if the route changes
+  watch: {
+    $route (to, from) {
+      const [firstVariant] = this.product.variants
+      this.selectedOptions = firstVariant.selectedOptions.reduce((options, { name, value }) => ({ [ name ]: value, ...options }), {})
+    }
+  }
+}
+</script>
+```
+
+All Shopify products have at least one variant, so you will probably want to filter out the default variant:
+
+```vue
+<template>
+  ...
+    <div
+      v-for="option in productOptions"
+      :key="option.id"
+      class="field">
+      ...
+    </div>
+  ...
+</template>
+
+<script>
+export default {
+  ...
+  computed: {
+    // Single variants have an default option called 'Title' - filter this out.
+    productOptions () { return this.product.options.filter(({ name }) => name !== 'Title') },
+  }
+  ...
+}
+</script>
+```
+
 ## Example Queries
 
 ### Products
