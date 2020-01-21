@@ -35,6 +35,9 @@ class ShopifySource {
       PRICE: 'ShopifyPrice'
     }
 
+    // Set included types
+    this.typesToInclude = options.types.length ? options.types.map(type => this.createTypeName(type)) : Object.values(this.TYPENAMES)
+
     this.shopify = createClient(options)
 
     // Create custom schema type for ShopifyImage
@@ -62,6 +65,8 @@ class ShopifySource {
   }
 
   async getProductTypes (actions) {
+    if (!this.typesToInclude.includes(this.TYPENAMES.PRODUCT_TYPE)) return
+
     const productTypeStore = actions.addCollection({ typeName: this.TYPENAMES.PRODUCT_TYPE })
 
     const allProductTypes = await queryAll(this.shopify, PRODUCT_TYPES_QUERY, this.options.perPage)
@@ -72,27 +77,30 @@ class ShopifySource {
   }
 
   async getCollections (actions) {
+    if (!this.typesToInclude.includes(this.TYPENAMES.COLLECTION)) return
+
     const collectionStore = actions.addCollection({ typeName: this.TYPENAMES.COLLECTION })
     const imageStore = actions.getCollection(this.TYPENAMES.IMAGE)
 
     const allCollections = await queryAll(this.shopify, COLLECTIONS_QUERY, this.options.perPage)
 
     for (const collection of allCollections) {
-      const products = collection.products.edges.map(({ node: product }) => actions.createReference(this.TYPENAMES.PRODUCT, product.id))
+      if (this.typesToInclude.includes(this.TYPENAMES.PRODUCT)) {
+        collection.products = collection.products.edges.map(({ node: product }) => actions.createReference(this.TYPENAMES.PRODUCT, product.id))
+      }
 
       if (collection.image) {
         const collectionImage = imageStore.addNode(collection.image)
         collection.image = actions.createReference(collectionImage)
       }
 
-      collectionStore.addNode({
-        ...collection,
-        products
-      })
+      collectionStore.addNode(collection)
     }
   }
 
   async getProducts (actions) {
+    if (!this.typesToInclude.includes(this.TYPENAMES.PRODUCT)) return
+
     const productStore = actions.addCollection({ typeName: this.TYPENAMES.PRODUCT })
     const imageStore = actions.getCollection(this.TYPENAMES.IMAGE)
     const priceStore = actions.getCollection(this.TYPENAMES.PRICE)
@@ -100,7 +108,10 @@ class ShopifySource {
     const allProducts = await queryAll(this.shopify, PRODUCTS_QUERY, this.options.perPage)
 
     for (const product of allProducts) {
-      const collections = product.collections.edges.map(({ node: collection }) => actions.createReference(this.TYPENAMES.COLLECTION, collection.id))
+      if (this.typesToInclude.includes(this.TYPENAMES.COLLECTION)) {
+        product.collections = product.collections.edges.map(({ node: collection }) => actions.createReference(this.TYPENAMES.COLLECTION, collection.id))
+      }
+
       const priceRange = this.getProductPriceRanges(product, actions)
 
       const images = product.images.edges.map(({ node: image }) => {
@@ -121,7 +132,6 @@ class ShopifySource {
 
       productStore.addNode({
         ...product,
-        collections,
         priceRange,
         variants,
         images
@@ -139,6 +149,8 @@ class ShopifySource {
   }
 
   async getBlogs (actions) {
+    if (!this.typesToInclude.includes(this.TYPENAMES.BLOG)) return
+
     const blogStore = actions.addCollection({ typeName: this.TYPENAMES.BLOG })
 
     const allBlogs = await queryAll(this.shopify, BLOGS_QUERY, this.options.perPage)
@@ -149,6 +161,8 @@ class ShopifySource {
   }
 
   async getArticles (actions) {
+    if (!this.typesToInclude.includes(this.TYPENAMES.ARTICLE)) return
+
     const articleStore = actions.addCollection({ typeName: this.TYPENAMES.ARTICLE })
     const imageStore = actions.getCollection(this.TYPENAMES.IMAGE)
 
@@ -160,16 +174,17 @@ class ShopifySource {
         article.image = actions.createReference(articleImage)
       }
 
-      const blog = actions.createReference(this.TYPENAMES.BLOG, article.blog.id)
+      if (this.typesToInclude.includes(this.TYPENAMES.BLOG)) {
+        article.blog = actions.createReference(this.TYPENAMES.BLOG, article.blog.id)
+      }
 
-      articleStore.addNode({
-        ...article,
-        blog
-      })
+      articleStore.addNode(article)
     }
   }
 
   async getPages (actions) {
+    if (!this.typesToInclude.includes(this.TYPENAMES.PAGE)) return
+
     const pageStore = actions.addCollection({ typeName: this.TYPENAMES.PAGE })
 
     const allPages = await queryAll(this.shopify, PAGES_QUERY, this.options.perPage)
