@@ -81,7 +81,7 @@ class ShopifySource {
       const products = collection.products.edges.map(({ node: product }) => actions.createReference(this.TYPENAMES.PRODUCT, product.id))
 
       if (collection.image) {
-        const collectionImage = imageStore.addNode({ ...collection.image, altText: collection.image?.altText })
+        const collectionImage = imageStore.addNode(collection.image)
         collection.image = actions.createReference(collectionImage)
       }
 
@@ -104,8 +104,8 @@ class ShopifySource {
       const priceRange = this.getProductPriceRanges(product, actions)
 
       const images = product.images.edges.map(({ node: image }) => {
-        imageStore.addNode({ ...image, altText: image?.altText })
-        return actions.createReference(this.TYPENAMES.IMAGE, image.id)
+        const productImage = imageStore.addNode(image)
+        return actions.createReference(productImage)
       })
 
       const variants = product.variants.edges.map(({ node: variant }) => {
@@ -156,7 +156,7 @@ class ShopifySource {
 
     for (const article of allArticles) {
       if (article.image) {
-        const articleImage = imageStore.addNode({ ...article.image, altText: article.image?.altText })
+        const articleImage = imageStore.addNode(article.image)
         article.image = actions.createReference(articleImage)
       }
 
