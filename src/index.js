@@ -80,15 +80,13 @@ class ShopifySource {
     for (const collection of allCollections) {
       const products = collection.products.edges.map(({ node: product }) => actions.createReference(this.TYPENAMES.PRODUCT, product.id))
 
-      let image
       if (collection.image) {
-        imageStore.addNode({ ...collection.image, altText: collection.image?.altText })
-        image = actions.createReference(this.TYPENAMES.IMAGE, collection.image.id)
+        const collectionImage = imageStore.addNode({ ...collection.image, altText: collection.image?.altText })
+        collection.image = actions.createReference(collectionImage)
       }
 
       collectionStore.addNode({
         ...collection,
-        image,
         products
       })
     }
@@ -111,15 +109,14 @@ class ShopifySource {
       })
 
       const variants = product.variants.edges.map(({ node: variant }) => {
-        let image
         if (variant.image) {
-          image = actions.createReference(this.TYPENAMES.IMAGE, variant.image.id)
+          variant.image = actions.createReference(this.TYPENAMES.IMAGE, variant.image.id)
         }
 
         const variantPrice = priceStore.addNode({ id: nanoid(), ...variant.price })
-        variant.price = actions.createReference(this.TYPENAMES.PRICE, variantPrice.id)
+        variant.price = actions.createReference(variantPrice)
 
-        return { ...variant, image }
+        return { ...variant }
       })
 
       productStore.addNode({
@@ -136,11 +133,9 @@ class ShopifySource {
     const priceStore = actions.getCollection(this.TYPENAMES.PRICE)
 
     const minVariantPrice = priceStore.addNode({ id: nanoid(), ...product.priceRange.minVariantPrice })
-    const minVariantPriceId = actions.createReference(this.TYPENAMES.PRICE, minVariantPrice.id)
     const maxVariantPrice = priceStore.addNode({ id: nanoid(), ...product.priceRange.maxVariantPrice })
-    const maxVariantPriceId = actions.createReference(this.TYPENAMES.PRICE, maxVariantPrice.id)
 
-    return { minVariantPrice: minVariantPriceId, maxVariantPrice: maxVariantPriceId }
+    return { minVariantPrice: actions.createReference(minVariantPrice), maxVariantPrice: actions.createReference(maxVariantPrice) }
   }
 
   async getBlogs (actions) {
@@ -160,18 +155,16 @@ class ShopifySource {
     const allArticles = await queryAll(this.shopify, ARTICLES_QUERY, this.options.perPage)
 
     for (const article of allArticles) {
-      let image
       if (article.image) {
-        imageStore.addNode({ ...article.image, altText: article.image?.altText })
-        image = actions.createReference(this.TYPENAMES.IMAGE, article.image.id)
+        const articleImage = imageStore.addNode({ ...article.image, altText: article.image?.altText })
+        article.image = actions.createReference(articleImage)
       }
 
       const blog = actions.createReference(this.TYPENAMES.BLOG, article.blog.id)
 
       articleStore.addNode({
         ...article,
-        blog,
-        image
+        blog
       })
     }
   }
