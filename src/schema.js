@@ -1,4 +1,4 @@
-export const createSchema = ({ addSchemaTypes, schema, addSchemaResolvers }, { IMAGE_TYPENAME, PRODUCT_VARIANT_PRICE_TYPENAME, PRODUCT_MIN_PRICE_TYPENAME, PRODUCT_MAX_PRICE_TYPENAME }) => {
+export const createSchema = ({ addSchemaTypes, schema, addSchemaResolvers }, { IMAGE_TYPENAME, PRICE_TYPENAME }) => {
   addSchemaTypes([
     schema.createEnumType({
       name: `${IMAGE_TYPENAME}CropMode`,
@@ -20,19 +20,12 @@ export const createSchema = ({ addSchemaTypes, schema, addSchemaResolvers }, { I
       }
     }),
     schema.createObjectType({
-      name: PRODUCT_VARIANT_PRICE_TYPENAME,
+      name: PRICE_TYPENAME,
       interfaces: ['Node'],
-      ...currencyAmountFieldSchema
-    }),
-    schema.createObjectType({
-      name: PRODUCT_MIN_PRICE_TYPENAME,
-      interfaces: ['Node'],
-      ...currencyAmountFieldSchema
-    }),
-    schema.createObjectType({
-      name: PRODUCT_MAX_PRICE_TYPENAME,
-      interfaces: ['Node'],
-      ...currencyAmountFieldSchema
+      fields: {
+        amount: 'String',
+        currencyCode: 'String'
+      }
     })
   ])
   addSchemaResolvers({
@@ -63,32 +56,18 @@ export const createSchema = ({ addSchemaTypes, schema, addSchemaResolvers }, { I
         }
       }
     },
-    [ PRODUCT_VARIANT_PRICE_TYPENAME ]: currencyAmountFieldResolver,
-    [ PRODUCT_MIN_PRICE_TYPENAME ]: currencyAmountFieldResolver,
-    [ PRODUCT_MAX_PRICE_TYPENAME ]: currencyAmountFieldResolver
+    [ PRICE_TYPENAME ]: {
+      amount: {
+        args: {
+          locale: 'String',
+          currency: 'String',
+          format: 'Boolean'
+        },
+        resolve: ({ amount, currencyCode }, { locale = 'en-US', currency, format = false }) => {
+          if (!currency && !format) return amount
+          return new Intl.NumberFormat(locale, { style: 'currency', currency: currency || currencyCode }).format(amount)
+        }
+      }
+    }
   })
-}
-
-// Currency Formatter
-const currencyFormatter = ({ amount, currencyCode }, { locale = 'en-US', currency, format = false }) => {
-  if (!currency && !format) return amount
-  return new Intl.NumberFormat(locale, { style: 'currency', currency: currency || currencyCode }).format(amount)
-}
-
-const currencyAmountFieldSchema = {
-  fields: {
-    amount: 'String',
-    currencyCode: 'String'
-  }
-}
-
-const currencyAmountFieldResolver = {
-  amount: {
-    args: {
-      locale: 'String',
-      currency: 'String',
-      format: 'Boolean'
-    },
-    resolve: currencyFormatter
-  }
 }
