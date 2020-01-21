@@ -14,8 +14,8 @@ const COLLECTION = 'Collection'
 const PRODUCT = 'Product'
 const PAGE = 'Page'
 const PRODUCT_TYPE = 'ProductType'
-const IMAGE_TYPENAME = 'Image'
-const PRICE_TYPENAME = 'Price'
+const IMAGE_TYPENAME = 'ShopifyImage'
+const PRICE_TYPENAME = 'ShopifyPrice'
 
 class ShopifySource {
   static defaultOptions () {
