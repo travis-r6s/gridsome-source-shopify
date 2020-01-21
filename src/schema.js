@@ -1,7 +1,7 @@
-export const createSchema = ({ addSchemaTypes, schema, addSchemaResolvers }, { IMAGE_TYPENAME, PRICE_TYPENAME }) => {
+export const createSchema = ({ addSchemaTypes, schema, addSchemaResolvers }, { TYPENAMES }) => {
   addSchemaTypes([
     schema.createEnumType({
-      name: `${IMAGE_TYPENAME}CropMode`,
+      name: `${TYPENAMES.IMAGE}CropMode`,
       values: {
         CENTER: {},
         TOP: {},
@@ -11,7 +11,7 @@ export const createSchema = ({ addSchemaTypes, schema, addSchemaResolvers }, { I
       }
     }),
     schema.createObjectType({
-      name: IMAGE_TYPENAME,
+      name: TYPENAMES.IMAGE,
       interfaces: ['Node'],
       fields: {
         altText: 'String',
@@ -20,7 +20,7 @@ export const createSchema = ({ addSchemaTypes, schema, addSchemaResolvers }, { I
       }
     }),
     schema.createObjectType({
-      name: PRICE_TYPENAME,
+      name: TYPENAMES.PRICE,
       interfaces: ['Node'],
       fields: {
         amount: 'String',
@@ -29,12 +29,12 @@ export const createSchema = ({ addSchemaTypes, schema, addSchemaResolvers }, { I
     })
   ])
   addSchemaResolvers({
-    [ IMAGE_TYPENAME ]: {
+    [ TYPENAMES.IMAGE ]: {
       transformedSrc: {
         args: {
           maxWidth: 'Int',
           maxHeight: 'Int',
-          crop: `${IMAGE_TYPENAME}CropMode`,
+          crop: `${TYPENAMES.IMAGE}CropMode`,
           scale: 'Int'
         },
         resolve ({ originalSrc }, { maxHeight, maxWidth, crop, scale }) {
@@ -56,7 +56,7 @@ export const createSchema = ({ addSchemaTypes, schema, addSchemaResolvers }, { I
         }
       }
     },
-    [ PRICE_TYPENAME ]: {
+    [ TYPENAMES.PRICE ]: {
       amount: {
         args: {
           locale: 'String',
