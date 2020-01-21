@@ -169,8 +169,6 @@ Each price type includes extra formatting arguments in the `amount` field, where
 
 ### Product's Variants
 
-### Products
-
 ```graphql
 {
   allShopifyProduct {
