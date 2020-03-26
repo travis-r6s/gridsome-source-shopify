@@ -9,9 +9,10 @@ This plugin supports the Storefront API's [`transformedSrc` image field](#transf
 2. [Usage](#usage)
 3. [Routes & Templates](#routes--templates)
 4. [Page Query](#page-query)
-5. [Additional Resolvers](#additional-resolvers)
-6. [Helpful Snippets](#helpful-snippets)
-7. [Example Queries](#example-queries)
+5. [Metafields](#metafields)
+6. [Additional Resolvers](#additional-resolvers)
+7. [Helpful Snippets](#helpful-snippets)
+8. [Example Queries](#example-queries)
 
 ## Install
 yarn:
@@ -107,6 +108,10 @@ Now this product will be available at `this.$page.shopifyProduct`:
 </template>
 ```
 
+## Metafields
+
+To make metafields available to query in the Storefront API, you should follow this guide: [Retrieve metafields with the Storefront API](https://shopify.dev/tutorials/retrieve-metafields-with-storefront-api)
+Then metafields will be available in your product query.
 
 ## Additional Resolvers
 
