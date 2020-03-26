@@ -192,6 +192,14 @@ export const PRODUCTS_QUERY = `
           title
           updatedAt
           vendor
+          metafields(first: 250) {
+            edges {
+              node {
+                key
+                value
+              }
+            }
+          }
         }
       }
     }
