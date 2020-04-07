@@ -3,6 +3,9 @@
   "description": "Shopify source plugin for Gridsome",
   "version": "0.1.11",
   "main": "lib/index.js",
+  "engines" : { 
+    "node" : ">=10.x" 
+  } 
   "author": {
     "email": "travis@travisreynolds.dev",
     "name": "Travis Reynolds"
