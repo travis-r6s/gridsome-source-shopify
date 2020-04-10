@@ -29,6 +29,7 @@ class ShopifySource {
       BLOG: this.createTypeName('Blog'),
       COLLECTION: this.createTypeName('Collection'),
       PRODUCT: this.createTypeName('Product'),
+      PRODUCT_VARIANT: this.createTypeName('ProductVariant'),
       PAGE: this.createTypeName('Page'),
       PRODUCT_TYPE: this.createTypeName('ProductType'),
       IMAGE: 'ShopifyImage',
@@ -102,6 +103,7 @@ class ShopifySource {
     if (!this.typesToInclude.includes(this.TYPENAMES.PRODUCT)) return
 
     const productStore = actions.addCollection({ typeName: this.TYPENAMES.PRODUCT })
+    const productVariantStore = actions.addCollection({ typeName: this.TYPENAMES.PRODUCT_VARIANT })
     const imageStore = actions.getCollection(this.TYPENAMES.IMAGE)
     const priceStore = actions.getCollection(this.TYPENAMES.PRICE)
 
@@ -127,7 +129,8 @@ class ShopifySource {
         const variantPrice = priceStore.addNode({ id: nanoid(), ...variant.price })
         variant.price = actions.createReference(variantPrice)
 
-        return variant
+        const variantNode = productVariantStore.addNode(variant)
+        return actions.createReference(variantNode)
       })
 
       productStore.addNode({
