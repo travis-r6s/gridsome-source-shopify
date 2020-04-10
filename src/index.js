@@ -1,5 +1,5 @@
 import camelCase from 'camelcase'
-import nanoid from 'nanoid'
+import { nanoid } from 'nanoid'
 import { createClient, queryAll } from './client'
 import { createSchema } from './schema'
 import { COLLECTIONS_QUERY, PRODUCTS_QUERY, PRODUCT_TYPES_QUERY, ARTICLES_QUERY, BLOGS_QUERY, PAGES_QUERY } from './queries'
