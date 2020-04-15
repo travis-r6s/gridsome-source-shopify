@@ -12,7 +12,6 @@ This plugin supports the Storefront API's [`transformedSrc` image field](#transf
 5. [Metafields](#metafields)
 6. [Additional Resolvers](#additional-resolvers)
 7. [Helpful Snippets](#helpful-snippets)
-8. [Example Queries](#example-queries)
 
 ## Install
 yarn:
@@ -239,134 +238,33 @@ export default {
 </script>
 ```
 
-## Example Queries
+You can also create relationships from products/product variants to other types, if they return an ID or array of ID's as one of their fields. For example, with Contentful's integration you could do something like the below:
 
-### Products
-
-```graphql
-{
-  allShopifyProduct {
-    edges {
-      node {
-        id
-        title
-        handle
-        descriptionHtml
-        image {
-          originalSrc
-          thumbnail: transformedSrc(maxWidth: 100, maxHeight: 100, crop: CENTER)
-        }
-        collections {
-          title
-          slug
-        }
-        tags
-        productType
-      }
-    }
+`gridsome.server.js`
+```js
+module.exports = api => {
+  api.loadSource(actions => {
+    const contentfulProducts = actions.getCollection('ContentfulProduct')
+    contentfulProducts.addReference('shopifyProductVariantId', 'ShopifyProductVariant')
   }
 }
 ```
 
-### Product's Variants
+Then query the actual product/product variant from within a query:
 
 ```graphql
-{
-  allShopifyProduct {
+query {
+  allContentfulProduct {
     edges {
       node {
-        id
-        variants {
+       name
+        shopifyProductVariantId {
+          id
           title
-          image {
-            id
-            altText
-            originalSrc
-          }
           price {
             amount
-            currencyCode
-          }
-          selectedOptions {
-            name
-            value
           }
         }
-      }
-    }
-  }
-}
-```
-
-### Collections
-
-```graphql
-{
-  allShopifyCollection {
-    edges {
-      node {
-        id
-        title
-        slug
-        descriptionHtml
-        image {
-          id
-          altText
-          banner: transformedSrc(maxHeight: 400, crop: BOTTOM, scale: 2)
-        }
-        products {
-          id
-          title
-          slug
-        }
-      }
-    }
-  }
-}
-```
-
-### Articles
-
-```graphql
-{
-  allShopifyArticle (limit: 10) {
-    edges {
-      node {
-        id
-        title
-        publishedAt
-        author {
-          name
-        }
-        blog {
-          id
-          title
-        }
-        contentHtml
-        excerptHtml
-        image {
-          id
-          altText
-          originalSrc
-        }
-      }
-    }
-  }
-}
-```
-
-### Pages
-
-```graphql
-{
-  allShopifyPage {
-    edges {
-      node {
-        id
-        title
-        handle
-        bodySummary
-        body
       }
     }
   }
