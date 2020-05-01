@@ -86,13 +86,6 @@ export const COLLECTIONS_QUERY = `
       edges {
         cursor
         node {
-          products(first: 250) {
-            edges {
-              node {
-                id
-              }
-            }
-          }
           description
           descriptionHtml
           handle

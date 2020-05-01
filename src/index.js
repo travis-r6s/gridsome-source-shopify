@@ -80,14 +80,15 @@ class ShopifySource {
   async getCollections (actions) {
     if (!this.typesToInclude.includes(this.TYPENAMES.COLLECTION)) return
 
-    const collectionStore = actions.addCollection({ typeName: this.TYPENAMES.COLLECTION })
     const imageStore = actions.getCollection(this.TYPENAMES.IMAGE)
+    const collectionStore = actions.addCollection({ typeName: this.TYPENAMES.COLLECTION })
+    collectionStore.addReference('products', this.TYPENAMES.PRODUCT)
 
     const allCollections = await queryAll(this.shopify, COLLECTIONS_QUERY, this.options.perPage)
 
     for (const collection of allCollections) {
       if (this.typesToInclude.includes(this.TYPENAMES.PRODUCT)) {
-        collection.products = collection.products.edges.map(({ node: product }) => actions.createReference(this.TYPENAMES.PRODUCT, product.id))
+        collection.products = []
       }
 
       if (collection.image) {
@@ -106,12 +107,18 @@ class ShopifySource {
     const productVariantStore = actions.addCollection({ typeName: this.TYPENAMES.PRODUCT_VARIANT })
     const imageStore = actions.getCollection(this.TYPENAMES.IMAGE)
     const priceStore = actions.getCollection(this.TYPENAMES.PRICE)
+    const collectionStore = actions.getCollection(this.TYPENAMES.COLLECTION)
 
     const allProducts = await queryAll(this.shopify, PRODUCTS_QUERY, this.options.perPage)
 
     for (const product of allProducts) {
       if (this.typesToInclude.includes(this.TYPENAMES.COLLECTION)) {
-        product.collections = product.collections.edges.map(({ node: collection }) => actions.createReference(this.TYPENAMES.COLLECTION, collection.id))
+        product.collections = product.collections.edges.map(({ node: collection }) => {
+          const collectionNode = collectionStore.getNodeById(collection.id)
+          if (collectionNode) collectionNode.products.push(product.id)
+
+          return actions.createReference(this.TYPENAMES.COLLECTION, collection.id)
+        })
       }
 
       const priceRange = this.getProductPriceRanges(product, actions)
