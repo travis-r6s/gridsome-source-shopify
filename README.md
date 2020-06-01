@@ -15,12 +15,12 @@ This plugin supports the Storefront API's [`transformedSrc` image field](#transf
 
 ## Install
 yarn:
-```
+```bash
 yarn add gridsome-source-shopify
 ```
 
 npm:
-```
+```bash
 npm install gridsome-source-shopify
 ```
 
