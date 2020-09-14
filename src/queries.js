@@ -1,6 +1,6 @@
 export const ARTICLES_QUERY = `
-  query GetArticles($first: Int!, $after: String) {
-    data: articles(first: $first, after: $after) {
+  query Articles ($first: Int!, $after: String) {
+    data: articles (first: $first, after: $after) {
       pageInfo {
         hasNextPage
       }
@@ -56,7 +56,7 @@ export const ARTICLES_QUERY = `
 `
 
 export const BLOGS_QUERY = `
-  query GetBlogs($first: Int!, $after: String) {
+  query Blogs ($first: Int!, $after: String) {
     data: blogs(first: $first, after: $after) {
       pageInfo {
         hasNextPage
@@ -78,7 +78,7 @@ export const BLOGS_QUERY = `
 `
 
 export const COLLECTIONS_QUERY = `
-  query GetCollections($first: Int!, $after: String) {
+  query Collections ($first: Int!, $after: String) {
     data: collections (first: $first, after: $after) {
       pageInfo {
         hasNextPage
@@ -104,7 +104,7 @@ export const COLLECTIONS_QUERY = `
 `
 
 export const PRODUCTS_QUERY = `
-  query GetProducts($first: Int!, $after: String) {
+  query Products ($first: Int!, $after: String) {
     data: products (first: $first, after: $after) {
       pageInfo {
         hasNextPage
