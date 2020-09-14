@@ -121,7 +121,8 @@ class ShopifySource {
         })
       }
 
-      const priceRange = this.getProductPriceRanges(product, actions)
+      const priceRange = this.getProductPriceRanges(product.priceRange, actions)
+      const compareAtPriceRange = this.getProductPriceRanges(product.compareAtPriceRange, actions)
 
       const images = product.images.edges.map(({ node: image }) => {
         const productImage = imageStore.addNode(image)
@@ -143,17 +144,18 @@ class ShopifySource {
       productStore.addNode({
         ...product,
         priceRange,
+        compareAtPriceRange,
         variants,
         images
       })
     }
   }
 
-  getProductPriceRanges (product, actions) {
+  getProductPriceRanges (priceRange, actions) {
     const priceStore = actions.getCollection(this.TYPENAMES.PRICE)
 
-    const minVariantPrice = priceStore.addNode({ id: nanoid(), ...product.priceRange.minVariantPrice })
-    const maxVariantPrice = priceStore.addNode({ id: nanoid(), ...product.priceRange.maxVariantPrice })
+    const minVariantPrice = priceStore.addNode({ id: nanoid(), ...priceRange.minVariantPrice })
+    const maxVariantPrice = priceStore.addNode({ id: nanoid(), ...priceRange.maxVariantPrice })
 
     return { minVariantPrice: actions.createReference(minVariantPrice), maxVariantPrice: actions.createReference(maxVariantPrice) }
   }
