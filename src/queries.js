@@ -172,8 +172,14 @@ export const PRODUCTS_QUERY = `
           }
           availableForSale
           compareAtPriceRange {
-            maxVariantPrice
-            minVariantPrice
+            minVariantPrice {
+              amount
+              currencyCode
+            }
+            maxVariantPrice {
+              amount
+              currencyCode
+            }
           }
           createdAt
           description
