@@ -1,5 +1,4 @@
 import got from 'got'
-import prettyjson from 'prettyjson'
 
 /**
  * Create a Shopify Storefront GraphQL client for the provided name and token.
@@ -21,17 +20,6 @@ export const createClient = ({ storeUrl, storefrontToken }) => {
       return data
     }
   }
-}
-
-/**
- * Print an error from a GraphQL client
- */
-export const printGraphQLError = e => {
-  const prettyjsonOptions = { keysColor: 'red', dashColor: 'red' }
-
-  if (e.response && e.response.errors) { console.error(prettyjson.render(e.response.errors, prettyjsonOptions)) }
-
-  if (e.request) console.error(prettyjson.render(e.request, prettyjsonOptions))
 }
 
 /**
