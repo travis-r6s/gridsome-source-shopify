@@ -2,7 +2,7 @@ import camelCase from 'camelcase'
 import { nanoid } from 'nanoid'
 import { createClient, queryAll } from './client'
 import { createSchema } from './schema'
-import { COLLECTIONS_QUERY, PRODUCTS_QUERY, PRODUCT_TYPES_QUERY, ARTICLES_QUERY, BLOGS_QUERY, PAGES_QUERY } from './queries'
+import { COLLECTIONS_QUERY, PRODUCTS_QUERY, PRODUCT_TYPES_QUERY, ARTICLES_QUERY, BLOGS_QUERY, PAGES_QUERY, PRODUCT_TAGS_QUERY } from './queries'
 
 class ShopifySource {
   static defaultOptions () {
@@ -32,6 +32,7 @@ class ShopifySource {
       PRODUCT_VARIANT: this.createTypeName('ProductVariant'),
       PAGE: this.createTypeName('Page'),
       PRODUCT_TYPE: this.createTypeName('ProductType'),
+      PRODUCT_TAG: this.createTypeName('ProductTag'),
       IMAGE: 'ShopifyImage',
       PRICE: 'ShopifyPrice'
     }
@@ -74,6 +75,18 @@ class ShopifySource {
 
     for (const productType of allProductTypes) {
       if (productType) productTypeStore.addNode({ title: productType })
+    }
+  }
+
+  async getProductTags (actions) {
+    if (!this.typesToInclude.includes(this.TYPENAMES.PRODUCT_TAG)) return
+
+    const productTagStore = actions.addCollection({ typeName: this.TYPENAMES.PRODUCT_TAG })
+
+    const allProductTags = await queryAll(this.shopify, PRODUCT_TAGS_QUERY, this.options.perPage)
+
+    for (const productTag of allProductTags) {
+      if (productTag) productTagStore.addNode({ title: productTag })
     }
   }
 
