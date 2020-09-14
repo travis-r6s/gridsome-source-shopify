@@ -142,27 +142,52 @@ export const PRODUCTS_QUERY = `
                   id
                   originalSrc
                 }
+                metafields(first: 250) {
+                  edges {
+                    node {
+                      key
+                      value
+                    }
+                  }
+                }
                 price: priceV2 {
                   amount
                   currencyCode
                 }
+                requiresShipping
                 selectedOptions {
                   name
                   value
                 }
                 sku
                 title
+                unitPrice {
+                  amount
+                  currencyCode
+                }
                 weight
                 weightUnit
               }
             }
           }
           availableForSale
+          compareAtPriceRange {
+            maxVariantPrice
+            minVariantPrice
+          }
           createdAt
           description
           descriptionHtml
           handle
           id
+          metafields(first: 250) {
+            edges {
+              node {
+                key
+                value
+              }
+            }
+          }
           onlineStoreUrl
           options {
             id
@@ -185,23 +210,19 @@ export const PRODUCTS_QUERY = `
           title
           updatedAt
           vendor
-          metafields(first: 250) {
-            edges {
-              node {
-                key
-                value
-              }
-            }
-          }
         }
       }
     }
   }
 `
 
-export const SHOP_POLICIES_QUERY = `
-  query GetPolicies {
+export const SHOP_QUERY = `
+  query Shop {
     shop {
+      description
+      moneyFormat
+      name
+      shipsToCountries
       privacyPolicy {
         body
         handle
@@ -228,8 +249,20 @@ export const SHOP_POLICIES_QUERY = `
 `
 
 export const PRODUCT_TYPES_QUERY = `
-  query GetProductTypes($first: Int!) {
+  query ProductTypes ($first: Int!) {
     data: productTypes(first: $first) {
+      pageInfo {
+        hasNextPage
+      }
+      edges {
+        node
+      }
+    }
+  }
+`
+export const PRODUCT_TAGS_QUERY = `
+  query ProductTags ($first: Int!) {
+    data: productTags(first: $first) {
       pageInfo {
         hasNextPage
       }
@@ -249,11 +282,13 @@ export const PAGES_QUERY = `
       edges {
         cursor
         node {
-          id
-          title
-          handle
           body
           bodySummary
+          createdAt
+          handle
+          id
+          title
+          updatedAt
         }
       }
     }
