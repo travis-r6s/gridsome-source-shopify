@@ -1,14 +1,27 @@
-import { GraphQLClient } from 'graphql-request'
+import got from 'got'
 import prettyjson from 'prettyjson'
 
 /**
  * Create a Shopify Storefront GraphQL client for the provided name and token.
  */
-export const createClient = ({ storeUrl, storefrontToken }) => new GraphQLClient(`${storeUrl}/api/2020-10/graphql.json`, {
-  headers: {
-    'X-Shopify-Storefront-Access-Token': storefrontToken
+export const createClient = ({ storeUrl, storefrontToken }) => {
+  const shopify = got.extend({
+    prefixUrl: `${storeUrl}/api/2020-10`,
+    headers: {
+      'X-Shopify-Storefront-Access-Token': storefrontToken
+    },
+    resolveBodyOnly: true,
+    responseType: 'json'
+  })
+
+  return {
+    request: async (query, variables) => {
+      const { data, errors } = await shopify.post('graphql.json', { json: { query, variables } })
+      if (errors) throw new Error(errors[ 0 ].message)
+      return data
+    }
   }
-})
+}
 
 /**
  * Print an error from a GraphQL client
