@@ -12,7 +12,7 @@ class ShopifySource {
       storefrontToken: '',
       typeName: 'Shopify',
       types: [],
-      perPage: 100
+      perPage: 5
     }
   }
 
@@ -72,7 +72,7 @@ class ShopifySource {
 
     const productTypeStore = actions.addCollection({ typeName: this.TYPENAMES.PRODUCT_TYPE })
 
-    const allProductTypes = await queryAll(this.shopify, PRODUCT_TYPES_QUERY, this.options.perPage)
+    const allProductTypes = await queryAll(this.shopify, PRODUCT_TYPES_QUERY, { first: this.options.perPage })
 
     for (const productType of allProductTypes) {
       if (productType) productTypeStore.addNode({ title: productType })
@@ -84,7 +84,7 @@ class ShopifySource {
 
     const productTagStore = actions.addCollection({ typeName: this.TYPENAMES.PRODUCT_TAG })
 
-    const allProductTags = await queryAll(this.shopify, PRODUCT_TAGS_QUERY, this.options.perPage)
+    const allProductTags = await queryAll(this.shopify, PRODUCT_TAGS_QUERY, { first: this.options.perPage })
 
     for (const productTag of allProductTags) {
       if (productTag) productTagStore.addNode({ title: productTag })
@@ -96,14 +96,11 @@ class ShopifySource {
 
     const imageStore = actions.getCollection(this.TYPENAMES.IMAGE)
     const collectionStore = actions.addCollection({ typeName: this.TYPENAMES.COLLECTION })
-    collectionStore.addReference('products', this.TYPENAMES.PRODUCT)
 
-    const allCollections = await queryAll(this.shopify, COLLECTIONS_QUERY, this.options.perPage)
+    const allCollections = await queryAll(this.shopify, COLLECTIONS_QUERY, { first: this.options.perPage })
 
     for (const collection of allCollections) {
-      if (this.typesToInclude.includes(this.TYPENAMES.PRODUCT)) {
-        collection.products = []
-      }
+      collection.products = collection.products.map(({ node: product }) => actions.createReference(this.TYPENAMES.PRODUCT, product.id))
 
       if (collection.image) {
         const collectionImage = imageStore.addNode(collection.image)
@@ -121,19 +118,11 @@ class ShopifySource {
     const productVariantStore = actions.addCollection({ typeName: this.TYPENAMES.PRODUCT_VARIANT })
     const imageStore = actions.getCollection(this.TYPENAMES.IMAGE)
     const priceStore = actions.getCollection(this.TYPENAMES.PRICE)
-    const collectionStore = actions.getCollection(this.TYPENAMES.COLLECTION)
 
-    const allProducts = await queryAll(this.shopify, PRODUCTS_QUERY, this.options.perPage)
+    const allProducts = await queryAll(this.shopify, PRODUCTS_QUERY, { first: this.options.perPage })
 
     for (const product of allProducts) {
-      if (this.typesToInclude.includes(this.TYPENAMES.COLLECTION)) {
-        product.collections = product.collections.edges.map(({ node: collection }) => {
-          const collectionNode = collectionStore.getNodeById(collection.id)
-          if (collectionNode) collectionNode.products.push(product.id)
-
-          return actions.createReference(this.TYPENAMES.COLLECTION, collection.id)
-        })
-      }
+      product.collections = product.collections.edges.map(({ node: collection }) => actions.createReference(this.TYPENAMES.COLLECTION, collection.id))
 
       const priceRange = this.getProductPriceRanges(product.priceRange, actions)
       const compareAtPriceRange = this.getProductPriceRanges(product.compareAtPriceRange, actions)
@@ -185,7 +174,7 @@ class ShopifySource {
 
     const blogStore = actions.addCollection({ typeName: this.TYPENAMES.BLOG })
 
-    const allBlogs = await queryAll(this.shopify, BLOGS_QUERY, this.options.perPage)
+    const allBlogs = await queryAll(this.shopify, BLOGS_QUERY, { first: this.options.perPage })
 
     for (const blog of allBlogs) {
       blogStore.addNode(blog)
@@ -198,7 +187,7 @@ class ShopifySource {
     const articleStore = actions.addCollection({ typeName: this.TYPENAMES.ARTICLE })
     const imageStore = actions.getCollection(this.TYPENAMES.IMAGE)
 
-    const allArticles = await queryAll(this.shopify, ARTICLES_QUERY, this.options.perPage)
+    const allArticles = await queryAll(this.shopify, ARTICLES_QUERY, { first: this.options.perPage })
 
     for (const article of allArticles) {
       if (article.image) {
@@ -219,7 +208,7 @@ class ShopifySource {
 
     const pageStore = actions.addCollection({ typeName: this.TYPENAMES.PAGE })
 
-    const allPages = await queryAll(this.shopify, PAGES_QUERY, this.options.perPage)
+    const allPages = await queryAll(this.shopify, PAGES_QUERY, { first: this.options.perPage })
 
     for (const page of allPages) {
       pageStore.addNode(page)

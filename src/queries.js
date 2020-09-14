@@ -84,6 +84,7 @@ export const COLLECTIONS_QUERY = `
         hasNextPage
       }
       edges {
+        typeName: __typename
         cursor
         node {
           description
@@ -95,6 +96,17 @@ export const COLLECTIONS_QUERY = `
             id
             originalSrc
           }
+          products (sortKey: COLLECTION_DEFAULT, first: $first) {
+            pageInfo {
+              hasNextPage
+            }
+            edges {
+              cursor
+              node {
+                id
+              }
+            }
+          }
           title
           updatedAt
         }
@@ -102,6 +114,22 @@ export const COLLECTIONS_QUERY = `
     }
   }
 `
+
+export const COLLECTION_QUERY = `query SingleCollection ($handle: String!, $first: Int!, $after: String) {
+  collection: collectionByHandle (handle: $handle) {
+    products (sortKey: COLLECTION_DEFAULT, first: $first, after: $after) {
+      pageInfo {
+        hasNextPage
+      }
+      edges {
+        cursor
+        node {
+          id
+        }
+      }
+    }
+  }
+}`
 
 export const PRODUCTS_QUERY = `
   query Products ($first: Int!, $after: String) {

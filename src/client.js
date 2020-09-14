@@ -1,4 +1,5 @@
 import got from 'got'
+import { COLLECTION_QUERY } from './queries'
 
 /**
  * Create a Shopify Storefront GraphQL client for the provided name and token.
@@ -16,10 +17,10 @@ export const createClient = ({ storeUrl, storefrontToken }) => got.extend({
  * Get all paginated data from a query. Will execute multiple requests as
  * needed.
  */
-export const queryAll = async (client, query, first = 100) => {
+export const queryAll = async (client, query, variables) => {
   const items = client.paginate.each('graphql.json', {
     method: 'POST',
-    json: { query, variables: { first } },
+    json: { query, variables },
     pagination: {
       transform: ({ body: { data, errors } }) => {
         if (errors) return []
@@ -33,18 +34,58 @@ export const queryAll = async (client, query, first = 100) => {
         if (!pageInfo.hasNextPage) return false
 
         const lastItem = currentItems[ currentItems.length - 1 ]
-        const variables = { first, after: lastItem.cursor }
+        const newVariables = { ...variables, after: lastItem.cursor }
 
         return {
-          json: { query, variables }
+          json: { query, variables: newVariables }
         }
       }
     }
   })
 
   const allNodes = []
-  for await (const { node } of items) {
-    allNodes.push(node)
+  for await (const { node, typeName } of items) {
+    if (typeName !== 'CollectionEdge') {
+      allNodes.push(node)
+      continue
+    }
+
+    // Currently setup for Collection.products field, but can extend this method in future, if needed
+    if (!node.products.pageInfo.hasNextPage) {
+      allNodes.push(node)
+      continue
+    }
+
+    const lastProduct = node.products.edges[ node.products.edges.length - 1 ]
+    const collectionVariables = { ...variables, handle: node.handle, after: lastProduct.cursor }
+
+    const remainingProducts = await client.paginate.all('graphql.json', {
+      method: 'POST',
+      json: { query: COLLECTION_QUERY, variables: collectionVariables },
+      pagination: {
+        transform: ({ body: { data, errors } }) => {
+          if (errors) return []
+          return data.collection.products.edges
+        },
+        paginate: (response, allItems, currentItems) => {
+          const { errors, data } = response.body
+          if (errors) throw new Error(errors[ 0 ].message)
+
+          const { pageInfo } = data.collection.products
+          if (!pageInfo.hasNextPage) return false
+
+          const lastItem = currentItems[ currentItems.length - 1 ]
+          const newVariables = { ...collectionVariables, after: lastItem.cursor }
+
+          return {
+            json: { query: COLLECTION_QUERY, variables: newVariables }
+          }
+        }
+      }
+    })
+
+    allNodes.push({ ...node, products: [...node.products.edges, ...remainingProducts] })
   }
+
   return allNodes
 }
