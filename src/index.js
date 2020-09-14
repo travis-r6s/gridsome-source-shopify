@@ -134,8 +134,14 @@ class ShopifySource {
           variant.image = actions.createReference(this.TYPENAMES.IMAGE, variant.image.id)
         }
 
-        const variantPrice = priceStore.addNode({ id: nanoid(), ...variant.price })
-        variant.price = actions.createReference(variantPrice)
+        const price = priceStore.addNode({ id: nanoid(), ...variant.price })
+        variant.price = actions.createReference(price)
+
+        const unitPrice = priceStore.addNode({ id: nanoid(), ...variant.unitPrice })
+        variant.unitPrice = actions.createReference(unitPrice)
+
+        const compareAtPrice = priceStore.addNode({ id: nanoid(), ...variant.compareAtPrice })
+        variant.compareAtPrice = actions.createReference(compareAtPrice)
 
         const variantNode = productVariantStore.addNode(variant)
         return actions.createReference(variantNode)
