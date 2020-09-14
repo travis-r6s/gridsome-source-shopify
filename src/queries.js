@@ -261,6 +261,7 @@ export const PRODUCT_TYPES_QUERY = `
         hasNextPage
       }
       edges {
+        cursor
         node
       }
     }
@@ -273,6 +274,7 @@ export const PRODUCT_TAGS_QUERY = `
         hasNextPage
       }
       edges {
+        cursor
         node
       }
     }
