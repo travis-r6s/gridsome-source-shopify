@@ -3,58 +3,48 @@ import got from 'got'
 /**
  * Create a Shopify Storefront GraphQL client for the provided name and token.
  */
-export const createClient = ({ storeUrl, storefrontToken }) => {
-  const shopify = got.extend({
-    prefixUrl: `${storeUrl}/api/2020-10`,
-    headers: {
-      'X-Shopify-Storefront-Access-Token': storefrontToken
-    },
-    resolveBodyOnly: true,
-    responseType: 'json'
-  })
-
-  return {
-    request: async (query, variables) => {
-      const { data, errors } = await shopify.post('graphql.json', { json: { query, variables } })
-      if (errors) throw new Error(errors[ 0 ].message)
-      return data
-    }
-  }
-}
-
-/**
- * Request a query from a client.
- */
-export const queryOnce = async (client, query, first = 100, after) => client.request(query, { first, after })
+export const createClient = ({ storeUrl, storefrontToken }) => got.extend({
+  prefixUrl: `${storeUrl}/api/2020-10`,
+  headers: {
+    'X-Shopify-Storefront-Access-Token': storefrontToken
+  },
+  resolveBodyOnly: true,
+  responseType: 'json'
+})
 
 /**
  * Get all paginated data from a query. Will execute multiple requests as
  * needed.
  */
-export const queryAll = async (
-  client,
-  query,
-  first,
-  after,
-  aggregatedResponse
-) => {
-  const { data: { edges, pageInfo } } = await queryOnce(client, query, first, after)
-  const lastNode = edges[ edges.length - 1 ]
-  const nodes = edges.map(edge => edge.node)
+export const queryAll = async (client, query, first = 100) => {
+  const items = client.paginate.each('graphql.json', {
+    method: 'POST',
+    json: { query, variables: { first } },
+    pagination: {
+      transform: ({ body: { data, errors } }) => {
+        if (errors) return []
+        return data.data.edges
+      },
+      paginate: (response, allItems, currentItems) => {
+        const { errors, data } = response.body
+        if (errors) throw new Error(errors[ 0 ].message)
 
-  aggregatedResponse
-    ? (aggregatedResponse = aggregatedResponse.concat(nodes))
-    : (aggregatedResponse = nodes)
+        const { pageInfo } = data.data
+        if (!pageInfo.hasNextPage) return false
 
-  if (pageInfo.hasNextPage) {
-    return queryAll(
-      client,
-      query,
-      first,
-      lastNode.cursor,
-      aggregatedResponse
-    )
+        const lastItem = currentItems[ currentItems.length - 1 ]
+        const variables = { first, after: lastItem.cursor }
+
+        return {
+          json: { query, variables }
+        }
+      }
+    }
+  })
+
+  const allNodes = []
+  for await (const { node } of items) {
+    allNodes.push(node)
   }
-
-  return aggregatedResponse
+  return allNodes
 }
