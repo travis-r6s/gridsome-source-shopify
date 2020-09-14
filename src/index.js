@@ -53,6 +53,7 @@ class ShopifySource {
 
       await this.setupStore(actions)
       await this.getProductTypes(actions)
+      await this.getProductTags(actions)
       await this.getCollections(actions)
       await this.getProducts(actions)
       await this.getBlogs(actions)
