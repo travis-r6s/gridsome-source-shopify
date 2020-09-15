@@ -21,6 +21,7 @@ export const queryAll = async (client, query, variables) => {
   const items = client.paginate.each('graphql.json', {
     method: 'POST',
     json: { query, variables },
+    timeout: 20000,
     pagination: {
       transform: ({ body: { data, errors } }) => {
         if (errors) return []
@@ -62,6 +63,7 @@ export const queryAll = async (client, query, variables) => {
     const remainingProducts = await client.paginate.all('graphql.json', {
       method: 'POST',
       json: { query: COLLECTION_QUERY, variables: collectionVariables },
+      timeout: 20000,
       pagination: {
         transform: ({ body: { data, errors } }) => {
           if (errors) return []
