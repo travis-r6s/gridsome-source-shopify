@@ -12,7 +12,7 @@ class ShopifySource {
       storefrontToken: '',
       typeName: 'Shopify',
       types: [],
-      perPage: 100
+      perPage: 250
     }
   }
 
