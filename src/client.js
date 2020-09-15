@@ -24,6 +24,7 @@ export const queryAll = async (client, query, variables) => {
     method: 'POST',
     json: { query, variables },
     pagination: {
+      backoff: 1000,
       transform: ({ body: { data, errors } }) => {
         if (errors) return []
         return data.data.edges
@@ -65,6 +66,7 @@ export const queryAll = async (client, query, variables) => {
       method: 'POST',
       json: { query: COLLECTION_QUERY, variables: collectionVariables },
       pagination: {
+        backoff: 1000,
         transform: ({ body: { data, errors } }) => {
           if (errors) return []
           return data.collection.products.edges
