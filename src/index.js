@@ -12,7 +12,7 @@ class ShopifySource {
       storefrontToken: '',
       typeName: 'Shopify',
       types: [],
-      perPage: 250,
+      perPage: 100,
       timeout: 60000
     }
   }
