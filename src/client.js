@@ -84,7 +84,8 @@ export const queryAll = async (client, query, variables) => {
       }
     })
 
-    allNodes.push({ ...node, products: [...node.products.edges, ...remainingProducts] })
+    const edges = [...node.products.edges, ...remainingProducts]
+    allNodes.push({ ...node, products: { edges } })
   }
 
   return allNodes

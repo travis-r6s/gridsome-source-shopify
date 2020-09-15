@@ -100,7 +100,7 @@ class ShopifySource {
     const allCollections = await queryAll(this.shopify, COLLECTIONS_QUERY, { first: this.options.perPage })
 
     for (const collection of allCollections) {
-      collection.products = collection.products.map(({ node: product }) => actions.createReference(this.TYPENAMES.PRODUCT, product.id))
+      collection.products = collection.products.edges.map(({ node: product }) => actions.createReference(this.TYPENAMES.PRODUCT, product.id))
 
       if (collection.image) {
         const collectionImage = imageStore.addNode(collection.image)
