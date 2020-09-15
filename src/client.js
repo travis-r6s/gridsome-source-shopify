@@ -4,13 +4,15 @@ import { COLLECTION_QUERY } from './queries'
 /**
  * Create a Shopify Storefront GraphQL client for the provided name and token.
  */
-export const createClient = ({ storeUrl, storefrontToken }) => got.extend({
+export const createClient = ({ storeUrl, storefrontToken, timeout }) => got.extend({
   prefixUrl: `${storeUrl}/api/2020-10`,
   headers: {
     'X-Shopify-Storefront-Access-Token': storefrontToken
   },
   resolveBodyOnly: true,
-  responseType: 'json'
+  responseType: 'json',
+  retry: 2,
+  timeout
 })
 
 /**
@@ -21,7 +23,6 @@ export const queryAll = async (client, query, variables) => {
   const items = client.paginate.each('graphql.json', {
     method: 'POST',
     json: { query, variables },
-    timeout: 20000,
     pagination: {
       transform: ({ body: { data, errors } }) => {
         if (errors) return []
@@ -63,7 +64,6 @@ export const queryAll = async (client, query, variables) => {
     const remainingProducts = await client.paginate.all('graphql.json', {
       method: 'POST',
       json: { query: COLLECTION_QUERY, variables: collectionVariables },
-      timeout: 20000,
       pagination: {
         transform: ({ body: { data, errors } }) => {
           if (errors) return []
