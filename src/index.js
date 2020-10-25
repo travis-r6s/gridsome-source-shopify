@@ -1,5 +1,4 @@
 import camelCase from 'camelcase'
-import { nanoid } from 'nanoid'
 import { createClient, queryAll } from './client'
 import { createSchema } from './schema'
 import { COLLECTIONS_QUERY, PRODUCTS_QUERY, PRODUCT_TYPES_QUERY, ARTICLES_QUERY, BLOGS_QUERY, PAGES_QUERY, PRODUCT_TAGS_QUERY } from './queries'
@@ -125,8 +124,8 @@ class ShopifySource {
     for (const product of allProducts) {
       product.collections = product.collections.edges.map(({ node: collection }) => actions.createReference(this.TYPENAMES.COLLECTION, collection.id))
 
-      const priceRange = this.getProductPriceRanges(product.priceRange, actions)
-      const compareAtPriceRange = this.getProductPriceRanges(product.compareAtPriceRange, actions)
+      const priceRange = this.getProductPriceRanges('priceRange', product, actions)
+      const compareAtPriceRange = this.getProductPriceRanges('compareAtPriceRange', product, actions)
 
       const images = product.images.edges.map(({ node: image }) => {
         const productImage = imageStore.addNode(image)
@@ -138,13 +137,13 @@ class ShopifySource {
           variant.image = actions.createReference(this.TYPENAMES.IMAGE, variant.image.id)
         }
 
-        const price = priceStore.addNode({ id: nanoid(), ...variant.price })
+        const price = priceStore.addNode({ id: this.createShopifyId(variant.id, 'Price'), ...variant.price })
         variant.price = actions.createReference(price)
 
-        const unitPrice = priceStore.addNode({ id: nanoid(), ...variant.unitPrice })
+        const unitPrice = priceStore.addNode({ id: this.createShopifyId(variant.id, 'UnitPrice'), ...variant.unitPrice })
         variant.unitPrice = actions.createReference(unitPrice)
 
-        const compareAtPrice = priceStore.addNode({ id: nanoid(), ...variant.compareAtPrice })
+        const compareAtPrice = priceStore.addNode({ id: this.createShopifyId(variant.id, 'CompareAtPrice'), ...variant.compareAtPrice })
         variant.compareAtPrice = actions.createReference(compareAtPrice)
 
         const variantNode = productVariantStore.addNode(variant)
@@ -161,11 +160,12 @@ class ShopifySource {
     }
   }
 
-  getProductPriceRanges (priceRange, actions) {
+  getProductPriceRanges (key, product, actions) {
     const priceStore = actions.getCollection(this.TYPENAMES.PRICE)
 
-    const minVariantPrice = priceStore.addNode({ id: nanoid(), ...priceRange.minVariantPrice })
-    const maxVariantPrice = priceStore.addNode({ id: nanoid(), ...priceRange.maxVariantPrice })
+    const priceRange = product[ key ]
+    const minVariantPrice = priceStore.addNode({ id: this.createShopifyId(product.id, `/${key}/MinVariantPrice`), ...priceRange.minVariantPrice })
+    const maxVariantPrice = priceStore.addNode({ id: this.createShopifyId(product.id, `/${key}/MaxVariantPrice`), ...priceRange.maxVariantPrice })
 
     return { minVariantPrice: actions.createReference(minVariantPrice), maxVariantPrice: actions.createReference(maxVariantPrice) }
   }
@@ -223,6 +223,12 @@ class ShopifySource {
     if (!typeName && types.includes(name)) typeName = 'Shopify'
 
     return camelCase(`${typeName} ${name}`, { pascalCase: true })
+  }
+
+  createShopifyId (id, name) {
+    const originalId = Buffer.from(id, 'base64').toString()
+    const key = camelCase(name, { pascalCase: true })
+    return Buffer.from(`${originalId}/${key}`).toString('base64')
   }
 }
 
