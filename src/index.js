@@ -218,7 +218,7 @@ class ShopifySource {
 
   createTypeName (name) {
     let typeName = this.options.typeName
-    // If typeName is blank, we need to add a preifx to these types anyway, as on their own they conflict with internal Gridsome types.
+    // If typeName is blank, we need to add a prefix to these types anyway, as on their own they conflict with internal Gridsome types.
     const types = ['Page']
     if (!typeName && types.includes(name)) typeName = 'Shopify'
 
