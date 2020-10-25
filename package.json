@@ -23,7 +23,7 @@
   ],
   "scripts": {
     "develop": "rollup -c --watch",
-    "build": "rollup -c"
+    "build": "rm -rf lib && rollup -c"
   },
   "dependencies": {
     "camelcase": "^6.0.0",
