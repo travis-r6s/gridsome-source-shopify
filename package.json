@@ -26,11 +26,11 @@
     "build": "rm -rf lib && rollup -c"
   },
   "dependencies": {
-    "camelcase": "^6.0.0",
-    "got": "^11.6.2"
+    "camelcase": "^6.2.0",
+    "got": "^11.8.2"
   },
   "devDependencies": {
     "eslint-config-travisreynolds-node": "^1.2.0",
-    "rollup": "^2.26.11"
+    "rollup": "^2.50.6"
   }
 }
