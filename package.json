@@ -23,7 +23,8 @@
   ],
   "scripts": {
     "develop": "rollup -c --watch",
-    "build": "rm -rf lib && rollup -c"
+    "build": "rm -rf lib && rollup -c",
+    "lint": "eslint src --fix"
   },
   "dependencies": {
     "camelcase": "^6.2.0",
