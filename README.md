@@ -115,9 +115,9 @@ Then metafields will be available in your product query.
 
 ## Translations
 
-To fetch translations for relevant types, you need to an array of locales to the plugin config. This plugin will fetch the default Shopify locale by default, so this array should only include extra locales you want to fetch:
+To fetch translations for relevant types, you need to an array of locales to the plugin options. This plugin will fetch the default Shopify locale by default, so this array should only include extra locales you want to fetch:
 ```js
-config: {
+options: {
   // ...
   locales: ['es', 'fr']
 }
