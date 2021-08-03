@@ -126,7 +126,7 @@ These translations are then available a couple of different ways, depending on h
 
 ### Translatable Fields
 
-When the locales config has been added, a `locale` argument is added to relevant fields. This can then be used to get a specific translation for that field - it fits well with when you have a site that uses a locale URL prefix, so you have different pages for each locale version. For example:
+When the locales config has been added, a `locale` argument is added to relevant fields: `title(locale: "es")`. This can then be used to get a specific translation for that field - it fits well with when you have a site that uses a locale URL prefix, so you have different pages for each locale version. For example:
 
 `gridsome.server.js`
 ```js
