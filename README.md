@@ -111,7 +111,6 @@ Now this product will be available at `this.$page.shopifyProduct`:
 ## Metafields
 
 To make metafields available to query in the Storefront API, you should follow this guide: [Retrieve metafields with the Storefront API](https://shopify.dev/tutorials/retrieve-metafields-with-storefront-api).
-Then metafields will be available in your product query.
 
 ## Translations
 
