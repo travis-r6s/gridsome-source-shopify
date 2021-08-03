@@ -1,7 +1,7 @@
 import camelCase from 'camelcase'
 import { createClient, queryAll } from './client'
 import { createSchema } from './schema'
-import { COLLECTIONS_QUERY, PRODUCTS_QUERY, PRODUCT_TYPES_QUERY, ARTICLES_QUERY, BLOGS_QUERY, PAGES_QUERY, PRODUCT_TAGS_QUERY } from './queries'
+import { COLLECTIONS_QUERY, PRODUCTS_QUERY, PRODUCT_TYPES_QUERY, ARTICLES_QUERY, BLOGS_QUERY, PAGES_QUERY, PRODUCT_TAGS_QUERY, PRODUCTS_TRANSLATIONS_QUERY, COLLECTIONS_TRANSLATIONS_QUERY, BLOGS_TRANSLATIONS_QUERY, ARTICLES_TRANSLATIONS_QUERY, PAGES__TRANSLATIONS_QUERY } from './queries'
 
 class ShopifySource {
   static defaultOptions () {
@@ -12,7 +12,8 @@ class ShopifySource {
       typeName: 'Shopify',
       types: [],
       perPage: 100,
-      timeout: 60000
+      timeout: 60000,
+      locales: []
     }
   }
 
@@ -22,15 +23,27 @@ class ShopifySource {
     if (!options.storeUrl && !options.storeName) throw new Error('Missing store name or url.')
     if (!options.storefrontToken) throw new Error('Missing storefront access token.')
     if (options.storeName) this.options.storeUrl = `https://${options.storeName}.myshopify.com`
+    if (options.locales) {
+      if (!Array.isArray(options.locales)) throw new Error('The locales option must be an array of strings.')
+      if (!options.locales.length) return
+      this.options.hasLocales = true
+      this.options.locales = options.locales.map(l => l.toLowerCase().trim())
+    }
 
     // Node Types
     this.TYPENAMES = {
       ARTICLE: this.createTypeName('Article'),
+      ARTICLE_TRANSLATION: this.createTypeName('ArticleTranslation'),
       BLOG: this.createTypeName('Blog'),
+      BLOG_TRANSLATION: this.createTypeName('BlogTranslation'),
       COLLECTION: this.createTypeName('Collection'),
+      COLLECTION_TRANSLATION: this.createTypeName('CollectionTranslation'),
       PRODUCT: this.createTypeName('Product'),
+      PRODUCT_TRANSLATION: this.createTypeName('ProductTranslation'),
       PRODUCT_VARIANT: this.createTypeName('ProductVariant'),
+      PRODUCT_VARIANT_TRANSLATION: this.createTypeName('ProductVariantTranslation'),
       PAGE: this.createTypeName('Page'),
+      PAGE_TRANSLATION: this.createTypeName('PageTranslation'),
       PRODUCT_TYPE: this.createTypeName('ProductType'),
       PRODUCT_TAG: this.createTypeName('ProductTag'),
       IMAGE: 'ShopifyImage',
@@ -44,7 +57,7 @@ class ShopifySource {
 
     // Create custom schema type for ShopifyImage
     api.loadSource(actions => {
-      createSchema(actions, { TYPENAMES: this.TYPENAMES })
+      createSchema(actions, { TYPENAMES: this.TYPENAMES, hasLocales: options.hasLocales, createShopifyId: this.createShopifyId })
     })
 
     // Load data into store
@@ -55,10 +68,15 @@ class ShopifySource {
       await this.getProductTypes(actions)
       await this.getProductTags(actions)
       await this.getCollections(actions)
+      await this.getCollectionsTranslations(actions)
       await this.getProducts(actions)
+      await this.getProductTranslations(actions)
       await this.getBlogs(actions)
+      await this.getBlogsTranslations(actions)
       await this.getArticles(actions)
+      await this.getArticlesTranslations(actions)
       await this.getPages(actions)
+      await this.getPagesTranslations(actions)
     })
   }
 
@@ -111,7 +129,29 @@ class ShopifySource {
     }
   }
 
-  async getProducts (actions) {
+  async getCollectionsTranslations (actions) {
+    if (!this.typesToInclude.includes(this.TYPENAMES.COLLECTION_TRANSLATION) || !this.options.hasLocales) return
+
+    const collectionsTranslationsStore = actions.addCollection({ typeName: this.TYPENAMES.COLLECTION_TRANSLATION })
+
+    for (const locale of this.options.locales) {
+      const collectionsTranslations = await queryAll(this.shopify, COLLECTIONS_TRANSLATIONS_QUERY, { first: this.options.perPage }, { 'Accept-Language': locale })
+
+      for (const collection of collectionsTranslations) {
+        const originalId = collection.id
+        const id = this.createShopifyId(collection.id, `Locale${locale.toUpperCase()}`)
+
+        collectionsTranslationsStore.addNode({
+          ...collection,
+          id,
+          locale,
+          originalId
+        })
+      }
+    }
+  }
+
+  async getProducts (actions, locale) {
     if (!this.typesToInclude.includes(this.TYPENAMES.PRODUCT)) return
 
     const productStore = actions.addCollection({ typeName: this.TYPENAMES.PRODUCT })
@@ -170,6 +210,38 @@ class ShopifySource {
     return { minVariantPrice: actions.createReference(minVariantPrice), maxVariantPrice: actions.createReference(maxVariantPrice) }
   }
 
+  async getProductTranslations (actions) {
+    if (!this.typesToInclude.includes(this.TYPENAMES.PRODUCT_TRANSLATION) || !this.options.hasLocales) return
+
+    const productTranslationsStore = actions.addCollection({ typeName: this.TYPENAMES.PRODUCT_TRANSLATION })
+    const productVariantTranslationsStore = actions.addCollection({ typeName: this.TYPENAMES.PRODUCT_VARIANT_TRANSLATION })
+
+    for (const locale of this.options.locales) {
+      const productsTranslations = await queryAll(this.shopify, PRODUCTS_TRANSLATIONS_QUERY, { first: this.options.perPage }, { 'Accept-Language': locale })
+
+      for (const product of productsTranslations) {
+        const originalId = product.id
+        const id = this.createShopifyId(product.id, `Locale${locale.toUpperCase()}`)
+
+        const variants = product.variants.edges.map(({ node: variant }) => {
+          const originalId = variant.id
+          const id = this.createShopifyId(variant.id, `Locale${locale.toUpperCase()}`)
+
+          const variantNode = productVariantTranslationsStore.addNode({ ...variant, id, originalId, locale })
+          return actions.createReference(variantNode)
+        })
+
+        productTranslationsStore.addNode({
+          ...product,
+          id,
+          locale,
+          originalId,
+          variants
+        })
+      }
+    }
+  }
+
   async getBlogs (actions) {
     if (!this.typesToInclude.includes(this.TYPENAMES.BLOG)) return
 
@@ -179,6 +251,28 @@ class ShopifySource {
 
     for (const blog of allBlogs) {
       blogStore.addNode(blog)
+    }
+  }
+
+  async getBlogsTranslations (actions) {
+    if (!this.typesToInclude.includes(this.TYPENAMES.BLOG_TRANSLATION) || !this.options.hasLocales) return
+
+    const blogsTranslationsStore = actions.addCollection({ typeName: this.TYPENAMES.BLOG_TRANSLATION })
+
+    for (const locale of this.options.locales) {
+      const blogsTranslations = await queryAll(this.shopify, BLOGS_TRANSLATIONS_QUERY, { first: this.options.perPage }, { 'Accept-Language': locale })
+
+      for (const blog of blogsTranslations) {
+        const originalId = blog.id
+        const id = this.createShopifyId(blog.id, `Locale${locale.toUpperCase()}`)
+
+        blogsTranslationsStore.addNode({
+          ...blog,
+          id,
+          locale,
+          originalId
+        })
+      }
     }
   }
 
@@ -204,6 +298,28 @@ class ShopifySource {
     }
   }
 
+  async getArticlesTranslations (actions) {
+    if (!this.typesToInclude.includes(this.TYPENAMES.ARTICLE_TRANSLATION) || !this.options.hasLocales) return
+
+    const articlesTranslationsStore = actions.addCollection({ typeName: this.TYPENAMES.ARTICLE_TRANSLATION })
+
+    for (const locale of this.options.locales) {
+      const articlesTranslations = await queryAll(this.shopify, ARTICLES_TRANSLATIONS_QUERY, { first: this.options.perPage }, { 'Accept-Language': locale })
+
+      for (const article of articlesTranslations) {
+        const originalId = article.id
+        const id = this.createShopifyId(article.id, `Locale${locale.toUpperCase()}`)
+
+        articlesTranslationsStore.addNode({
+          ...article,
+          id,
+          locale,
+          originalId
+        })
+      }
+    }
+  }
+
   async getPages (actions) {
     if (!this.typesToInclude.includes(this.TYPENAMES.PAGE)) return
 
@@ -213,6 +329,28 @@ class ShopifySource {
 
     for (const page of allPages) {
       pageStore.addNode(page)
+    }
+  }
+
+  async getPagesTranslations (actions) {
+    if (!this.typesToInclude.includes(this.TYPENAMES.PAGE_TRANSLATION) || !this.options.hasLocales) return
+
+    const pagesTranslationsStore = actions.addCollection({ typeName: this.TYPENAMES.PAGE_TRANSLATION })
+
+    for (const locale of this.options.locales) {
+      const pagesTranslations = await queryAll(this.shopify, PAGES__TRANSLATIONS_QUERY, { first: this.options.perPage }, { 'Accept-Language': locale })
+
+      for (const page of pagesTranslations) {
+        const originalId = page.id
+        const id = this.createShopifyId(page.id, `Locale${locale.toUpperCase()}`)
+
+        pagesTranslationsStore.addNode({
+          ...page,
+          id,
+          locale,
+          originalId
+        })
+      }
     }
   }
 
