@@ -203,7 +203,7 @@ query Product ($id: ID!, $locale: String!) {
 </page-query>
 ```
 
-#### Translation Collections
+#### Translations Collections
 
 A translations collection is added for each relevant type, each with an array of nodes containing the translatable fields for that type. You can add filters to these queries to get a specific locale if needed - for example:
 
