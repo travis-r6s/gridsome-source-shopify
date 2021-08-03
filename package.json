@@ -31,6 +31,6 @@
   },
   "devDependencies": {
     "eslint-config-travisreynolds-node": "^1.2.0",
-    "rollup": "^2.50.6"
+    "rollup": "^2.55.1"
   }
 }
