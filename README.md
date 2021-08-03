@@ -33,10 +33,10 @@ module.exports = {
     {
       use: 'gridsome-source-shopify',
       options: {
-        storeName: <my-store> // OR
+        storeName: '<my-store>', // OR
         storeUrl: 'https://<my-store>.myshopify.com',
-        storefrontToken: <storefront-api-token>, //Required
-        typeName: 'Shopify' // Optional, default is 'Shopify'
+        storefrontToken: '<storefront-api-token>', //Required
+        typeName: 'Shopify', // Optional, default is 'Shopify'
         types: [ 'Product', 'Collection' ], // Optional, default is all types
         perPage: 100 // Optional, default is 100
       }
@@ -101,7 +101,7 @@ Now this product will be available at `this.$page.shopifyProduct`:
 ```vue
 <template>
   <Layout>
-    <h1>{{ $page.shopifyProduct.title }}</h3>
+    <h1>{{ $page.shopifyProduct.title }}</h1>
     <div v-html="$page.shopifyProduct.descriptionHtml" />
   </Layout>
 </template>
@@ -182,6 +182,10 @@ You will probably need to find a product variant by the options that have been s
         </label>
       </div>
     </div>
+    <div>
+      <img :src="currentVariant.image.transformedSrc">
+      <div v-html="$page.shopifyProduct.descriptionHtml" />
+    </div>
   ...
 </template>
 
@@ -198,13 +202,13 @@ export default {
   },
   // Set the first variant as a default option
   mounted () {
-    const [firstVariant] = this.product.variants
+    const [firstVariant] = this.$page.shopifyProduct.variants
     this.selectedOptions = firstVariant.selectedOptions.reduce((options, { name, value }) => ({ [ name ]: value, ...options }), {})
   },
   // The mounted hook doesn't always run on page change - so make sure we set the first variant if the route changes
   watch: {
     $route (to, from) {
-      const [firstVariant] = this.product.variants
+      const [firstVariant] = this.$page.shopifyProduct.variants
       this.selectedOptions = firstVariant.selectedOptions.reduce((options, { name, value }) => ({ [ name ]: value, ...options }), {})
     }
   }
