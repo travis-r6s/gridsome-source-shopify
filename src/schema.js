@@ -72,7 +72,7 @@ export const createSchema = ({ addSchemaTypes, schema, addSchemaResolvers }, { T
   })
 
   if (hasLocales) {
-    const translateableTypes = [
+    const translatableTypes = [
       [TYPENAMES.PRODUCT, TYPENAMES.PRODUCT_TRANSLATION, ['title', 'description', 'descriptionHtml']],
       [TYPENAMES.PRODUCT_VARIANT, TYPENAMES.PRODUCT_VARIANT_TRANSLATION, ['title', 'selectedOptions']],
       [TYPENAMES.COLLECTION, TYPENAMES.COLLECTION_TRANSLATION, ['title', 'description', 'descriptionHtml']],
@@ -81,7 +81,7 @@ export const createSchema = ({ addSchemaTypes, schema, addSchemaResolvers }, { T
       [TYPENAMES.PAGE, TYPENAMES.PAGE_TRANSLATION, ['title', 'body']]
     ]
 
-    const resolvers = translateableTypes.map(([typeName, translationTypeName, fields]) => {
+    const resolvers = translatableTypes.map(([typeName, translationTypeName, fields]) => {
       const resolvers = fields.map(field => {
         return [field, {
           args: {
