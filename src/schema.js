@@ -72,6 +72,13 @@ export const createSchema = ({ addSchemaTypes, schema, addSchemaResolvers }, { T
   })
 
   if (hasLocales) {
+    addSchemaTypes(`
+      type ${TYPENAMES.PRODUCT_VARIANT}_SelectedOptions @infer {
+        name: String
+        value: String
+      }
+    `)
+
     const translatableTypes = [
       [TYPENAMES.PRODUCT, TYPENAMES.PRODUCT_TRANSLATION, ['title', 'description', 'descriptionHtml']],
       [TYPENAMES.PRODUCT_VARIANT, TYPENAMES.PRODUCT_VARIANT_TRANSLATION, ['title', 'selectedOptions']],
@@ -84,7 +91,7 @@ export const createSchema = ({ addSchemaTypes, schema, addSchemaResolvers }, { T
     const resolvers = translatableTypes.map(([typeName, translationTypeName, fields]) => {
       const resolvers = fields.map(field => {
         return [field, {
-          type: 'String',
+          type: field === 'selectedOptions' ? `[${TYPENAMES.PRODUCT_VARIANT}_SelectedOptions]` : 'String',
           args: {
             locale: 'String'
           },
