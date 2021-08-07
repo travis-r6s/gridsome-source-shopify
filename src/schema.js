@@ -84,6 +84,7 @@ export const createSchema = ({ addSchemaTypes, schema, addSchemaResolvers }, { T
     const resolvers = translatableTypes.map(([typeName, translationTypeName, fields]) => {
       const resolvers = fields.map(field => {
         return [field, {
+          type: 'String',
           args: {
             locale: 'String'
           },
