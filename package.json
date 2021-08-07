@@ -1,7 +1,7 @@
 {
   "name": "gridsome-source-shopify",
   "description": "Shopify source plugin for Gridsome",
-  "version": "0.3.0-beta.1",
+  "version": "0.3.0-beta.2",
   "main": "lib/index.js",
   "engines": {
     "node": ">=12.x"
