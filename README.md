@@ -133,11 +133,13 @@ When the locales config has been added, a `locale` argument is added to relevant
 module.exports = api => {
   api.createPages(async ({ graphql, createPage }) => {
     const { data } = await graphql(`
-      allShopifyProduct {
-        edges {
-          node {
-            id
-            handle
+      {
+        allShopifyProduct {
+          edges {
+            node {
+              id
+              handle
+            }
           }
         }
       }
