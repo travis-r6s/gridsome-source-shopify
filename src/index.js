@@ -25,9 +25,10 @@ class ShopifySource {
     if (options.storeName) this.options.storeUrl = `https://${options.storeName}.myshopify.com`
     if (options.locales) {
       if (!Array.isArray(options.locales)) throw new Error('The locales option must be an array of strings.')
-      if (!options.locales.length) return
-      this.options.hasLocales = true
-      this.options.locales = options.locales.map(l => l.toLowerCase().trim())
+      if (options.locales.length) {
+        this.options.hasLocales = true
+        this.options.locales = options.locales.map(l => l.toLowerCase().trim())
+      }
     }
 
     // Node Types
