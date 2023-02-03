@@ -5,7 +5,7 @@ import { COLLECTION_QUERY } from './queries'
  * Create a Shopify Storefront GraphQL client for the provided name and token.
  */
 export const createClient = ({ storeUrl, storefrontToken, timeout }) => got.extend({
-  prefixUrl: `${storeUrl}/api/2020-10`,
+  prefixUrl: `${storeUrl}/api/2022-01`,
   headers: {
     'X-Shopify-Storefront-Access-Token': storefrontToken
   },
