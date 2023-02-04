@@ -54,6 +54,26 @@ export const ARTICLES_QUERY = `
     }
   }
 `
+export const ARTICLES_TRANSLATIONS_QUERY = `
+  query Articles ($first: Int!, $after: String) {
+    data: articles (first: $first, after: $after) {
+      pageInfo {
+        hasNextPage
+      }
+      edges {
+        cursor
+        node {
+          id
+          title
+          content
+          contentHtml
+          excerpt
+          excerptHtml
+        }
+      }
+    }
+  }
+`
 
 export const BLOGS_QUERY = `
   query Blogs ($first: Int!, $after: String) {
@@ -71,6 +91,22 @@ export const BLOGS_QUERY = `
           id
           title
           url
+        }
+      }
+    }
+  }
+`
+export const BLOGS_TRANSLATIONS_QUERY = `
+  query Blogs ($first: Int!, $after: String) {
+    data: blogs(first: $first, after: $after) {
+      pageInfo {
+        hasNextPage
+      }
+      edges {
+        cursor
+        node {
+          id
+          title
         }
       }
     }
@@ -109,6 +145,25 @@ export const COLLECTIONS_QUERY = `
           }
           title
           updatedAt
+        }
+      }
+    }
+  }
+`
+export const COLLECTIONS_TRANSLATIONS_QUERY = `
+  query Collections ($first: Int!, $after: String) {
+    data: collections (first: $first, after: $after) {
+      pageInfo {
+        hasNextPage
+      }
+      edges {
+        typeName: __typename
+        cursor
+        node {
+          id
+          title
+          description
+          descriptionHtml
         }
       }
     }
@@ -250,6 +305,37 @@ export const PRODUCTS_QUERY = `
   }
 `
 
+export const PRODUCTS_TRANSLATIONS_QUERY = `
+  query Products ($first: Int!, $after: String) {
+    data: products (first: $first, after: $after) {
+      pageInfo {
+        hasNextPage
+      }
+      edges {
+        cursor
+        node {
+          id
+          title
+          description
+          descriptionHtml
+          variants(first: 250) {
+            edges {
+              node {
+                id
+                title
+                selectedOptions {
+                  name
+                  value
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`
+
 export const SHOP_QUERY = `
   query Shop {
     shop {
@@ -325,6 +411,24 @@ export const PAGES_QUERY = `
           id
           title
           updatedAt
+        }
+      }
+    }
+  }
+`
+
+export const PAGES__TRANSLATIONS_QUERY = `
+  query Pages ($first: Int!) {
+    data: pages (first: $first) {
+      pageInfo {
+        hasNextPage
+      }
+      edges {
+        cursor
+        node {
+          id
+          title
+          body
         }
       }
     }

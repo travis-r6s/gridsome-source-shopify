@@ -10,6 +10,7 @@ This plugin supports the Storefront API's [`transformedSrc` image field](#transf
 3. [Routes & Templates](#routes--templates)
 4. [Page Query](#page-query)
 5. [Metafields](#metafields)
+5. [Translations](#translations)
 6. [Additional Resolvers](#additional-resolvers)
 7. [Helpful Snippets](#helpful-snippets)
 
@@ -110,7 +111,189 @@ Now this product will be available at `this.$page.shopifyProduct`:
 ## Metafields
 
 To make metafields available to query in the Storefront API, you should follow this guide: [Retrieve metafields with the Storefront API](https://shopify.dev/tutorials/retrieve-metafields-with-storefront-api).
-Then metafields will be available in your product query.
+
+## Translations
+
+To fetch translations for relevant types, you need to an array of locales to the plugin options. This plugin will fetch the default Shopify locale by default, so this array should only include extra locales you want to fetch:
+```js
+options: {
+  // ...
+  locales: ['es', 'fr']
+}
+```
+
+These translations are then available a couple of different ways, depending on how your sites internationalization is setup.
+
+### Translatable Fields
+
+When the locales config has been added, a `locale` argument is added to relevant fields: `title(locale: "es")`. This can then be used to get a specific translation for that field - it fits well with when you have a site that uses a locale URL prefix, so you have different pages for each locale version. For example:
+
+`gridsome.server.js`
+```js
+module.exports = api => {
+  api.createPages(async ({ graphql, createPage }) => {
+    const { data } = await graphql(`
+      {
+        allShopifyProduct {
+          edges {
+            node {
+              id
+              handle
+            }
+          }
+        }
+      }
+    `)
+
+    const locales = ['en', 'es', 'fr']
+
+    for (const { node: product } of data.allShopifyProduct.edges) {
+      for (const locale of locales) {
+        createPage({
+          path: `/${locale}/products/${product.handle}`,
+          component: './src/templates/Product.vue',
+          context: {
+            id: product.id,
+            locale
+          }
+        })
+      }
+    }
+  })
+}
+```
+`Product.vue`
+```vue
+<template>
+  <Layout>
+    <div>
+      <h1>{{ product.title }}</h1>
+      <div v-html="product.descriptionHtml"></div>
+      <!-- ... -->
+    </div>
+  </Layout>
+</template>
+
+<script>
+export default {
+  name: 'Product',
+  computed: {
+    product () { return this.$page.shopifyProduct }
+  }
+}
+</script>
+
+<page-query>
+query Product ($id: ID!, $locale: String!) {
+  shopifyProduct (id: $id) {
+    id
+    title(locale: $locale)
+    descriptionHtml(locale: $locale)
+    variants {
+      id
+      title(locale: $locale)
+      price {
+        amount
+      }
+      selectedOptions (locale: $locale) {
+        name
+        value
+      }
+    }
+  }
+}
+</page-query>
+```
+
+#### Translations Collections
+
+A translations collection is added for each relevant type, each with an array of nodes containing the translatable fields for that type. You can add filters to these queries to get a specific locale if needed - for example:
+
+```graphql
+allShopifyProductTranslations (filter: { locale: {_eq: "es" }}) {
+  edges {
+    node {
+      id
+      originalId
+      title
+      description
+      variant {
+        title
+      }
+    }
+  }
+}
+```
+> Note: As these collections contain multiple copies of a node (for each translation), the ID is changed to keep it unique. The original Shopify ID can be found under `originalId`.
+
+This could be used when you have a site setup so there is one page that includes every translation, and a select input is used to switch between locales:
+
+```vue
+<template>
+  <Layout @locale-change="currentLocale = $event">
+    <div>
+      <h1>{{ translatedProduct.title }}</h1>
+      <div v-html="translatedProduct.descriptionHtml"></div>
+      <!-- ... -->
+    </div>
+  </Layout>
+</template>
+
+<script>
+export default {
+  name: 'Product',
+  data: () => ({
+    currentLocale: 'en'
+  }),
+  computed: {
+    product () {
+      return this.$page.shopifyProduct
+    },
+    translatedProduct () {
+      const locale = this.currentLocale
+      if (locale === 'en') return this.product
+
+      const translations = this.$page.allShopifyProductTranslation.edges.map(({ node }) => node)
+      return translations.find(translation => translation.locale = locale)
+    }
+  }
+}
+</script>
+
+<page-query>
+query Product ($id: ID!) {
+  shopifyProduct (id: $id) {
+    id
+    title
+    descriptionHtml
+    variants {
+      id
+      title
+      price {
+        amount
+      }
+    }
+  }
+  allShopifyProductTranslation (filter: { id: { eq: $id }}) {
+    edges {
+      node {
+        id
+        title
+        locale
+        descriptionHtml
+        variants {
+          title
+          selectedOptions {
+            name
+            value
+          }
+        }
+      }
+    }
+  }
+}
+</page-query>
+```
 
 ## Additional Resolvers
 

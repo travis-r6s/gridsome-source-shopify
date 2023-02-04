@@ -1,10 +1,10 @@
 {
   "name": "gridsome-source-shopify",
   "description": "Shopify source plugin for Gridsome",
-  "version": "0.2.7",
+  "version": "0.3.0-beta.2",
   "main": "lib/index.js",
   "engines": {
-    "node": ">=10.x"
+    "node": ">=12.x"
   },
   "author": {
     "email": "travis@travisreynolds.dev",
@@ -23,14 +23,15 @@
   ],
   "scripts": {
     "develop": "rollup -c --watch",
-    "build": "rm -rf lib && rollup -c"
+    "build": "rm -rf lib && rollup -c",
+    "lint": "eslint src --fix"
   },
   "dependencies": {
-    "camelcase": "^6.0.0",
-    "got": "^11.6.2"
+    "camelcase": "^6.2.0",
+    "got": "^11.8.2"
   },
   "devDependencies": {
     "eslint-config-travisreynolds-node": "^1.2.0",
-    "rollup": "^2.26.11"
+    "rollup": "^2.55.1"
   }
 }

@@ -19,10 +19,11 @@ export const createClient = ({ storeUrl, storefrontToken, timeout }) => got.exte
  * Get all paginated data from a query. Will execute multiple requests as
  * needed.
  */
-export const queryAll = async (client, query, variables) => {
+export const queryAll = async (client, query, variables, headers) => {
   const items = client.paginate.each('graphql.json', {
     method: 'POST',
     json: { query, variables },
+    headers: headers || {},
     pagination: {
       backoff: 1000,
       transform: ({ body: { data, errors } }) => {
@@ -54,7 +55,7 @@ export const queryAll = async (client, query, variables) => {
     }
 
     // Currently setup for Collection.products field, but can extend this method in future, if needed
-    if (!node.products.pageInfo.hasNextPage) {
+    if (!node.products || !node.products.pageInfo.hasNextPage) {
       allNodes.push(node)
       continue
     }

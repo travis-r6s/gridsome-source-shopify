@@ -1,4 +1,4 @@
-export const createSchema = ({ addSchemaTypes, schema, addSchemaResolvers }, { TYPENAMES }) => {
+export const createSchema = ({ addSchemaTypes, schema, addSchemaResolvers }, { TYPENAMES, hasLocales, createShopifyId }) => {
   addSchemaTypes([
     schema.createEnumType({
       name: `${TYPENAMES.IMAGE}CropMode`,
@@ -70,4 +70,46 @@ export const createSchema = ({ addSchemaTypes, schema, addSchemaResolvers }, { T
       }
     }
   })
+
+  if (hasLocales) {
+    addSchemaTypes(`
+      type ${TYPENAMES.PRODUCT_VARIANT}_SelectedOptions @infer {
+        name: String
+        value: String
+      }
+    `)
+
+    const translatableTypes = [
+      [TYPENAMES.PRODUCT, TYPENAMES.PRODUCT_TRANSLATION, ['title', 'description', 'descriptionHtml']],
+      [TYPENAMES.PRODUCT_VARIANT, TYPENAMES.PRODUCT_VARIANT_TRANSLATION, ['title', 'selectedOptions']],
+      [TYPENAMES.COLLECTION, TYPENAMES.COLLECTION_TRANSLATION, ['title', 'description', 'descriptionHtml']],
+      [TYPENAMES.ARTICLE, TYPENAMES.ARTICLE_TRANSLATION, ['title', 'content', 'contentHtml', 'excerpt', 'excerptHtml']],
+      [TYPENAMES.BLOG, TYPENAMES.BLOG_TRANSLATION, ['title']],
+      [TYPENAMES.PAGE, TYPENAMES.PAGE_TRANSLATION, ['title', 'body']]
+    ]
+
+    const resolvers = translatableTypes.map(([typeName, translationTypeName, fields]) => {
+      const resolvers = fields.map(field => {
+        return [field, {
+          type: field === 'selectedOptions' ? `[${TYPENAMES.PRODUCT_VARIANT}_SelectedOptions]` : 'String',
+          args: {
+            locale: 'String'
+          },
+          resolve: (parent, { locale }, ctx) => {
+            if (!locale) return Reflect.get(parent, field)
+            const translationId = createShopifyId(parent.id, `Locale${locale.toUpperCase()}`)
+            const translationsStore = ctx.store.getCollection(translationTypeName)
+
+            const translation = translationsStore.getNode(translationId)
+            if (!translation) return Reflect.get(parent, field)
+            return Reflect.get(translation, field)
+          }
+        }]
+      })
+
+      return [typeName, Object.fromEntries(resolvers)]
+    })
+
+    addSchemaResolvers(Object.fromEntries(resolvers))
+  }
 }
